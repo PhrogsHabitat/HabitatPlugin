@@ -1,0 +1,159 @@
+/**
+ * @name Habitat+
+ * @author PlusInsta, PhrogsHabitat
+ * @authorId 309931975102300160
+ * @authorLink https://plusinsta.xyz
+ * @version 3.2.1
+ * @description Habitat Home brought to Discord. (Modified version by PhrogsHabitat. Base version by PlusInsta and contributors.)
+ * @donate https://ko-fi.com/plusinsta
+ * @website https://plusinsta.github.io/discord-plus
+ * @source https://github.com/PlusInsta/discord-plus
+ * @updateUrl https://plusinsta.github.io/discord-plus/DiscordPlus.theme.css
+ * @invite 2Jwh2nS
+*/
+@import url(https://plusinsta.github.io/discord-plus/src/DiscordPlus-source.theme.css);
+
+/* Ensure the JavaScript file is loaded for the raindrop effect to work. */
+
+/* I've commented most of these values so you can change them yourself. If you're having trouble, or you want to do more than what these values allow for, a volunteer might be able to help you in my server. */
+
+.theme-dark {
+  /* Backdrop image (unchanged, but you can replace it if desired). */
+  --dplus-backdrop: url(https://phrogshabitat.github.io/forestShit.mp4);
+
+  /* Accent color: Green hue for highlights and accents. */
+  --dplus-accent-color-hue: 120;
+  --dplus-accent-color-saturation: 70%;
+  --dplus-accent-color-lightness: 35%;
+
+  /* Foreground color: Adjusted to complement green tones. */
+  --dplus-foreground-color-hue-base: 120;
+  --dplus-foreground-color-hue-links: 100;
+  --dplus-foreground-color-saturation-amount: 0.8;
+  --dplus-foreground-color-lightness-amount: 0.9;
+
+  /* Background color: A darker green to avoid harsh contrast. */
+  --dplus-background-color-hue: 120;
+  --dplus-background-color-saturation-amount: 0.5;
+  --dplus-background-color-lightness-amount: 0.15;
+  --dplus-background-color-alpha: 0.8;
+}
+
+.theme-light {
+  /* Backdrop image (unchanged). */
+  --dplus-backdrop: url(https://phrogshabitat.github.io/forestShit.mp4);
+
+  /* Accent color: Green for light theme. */
+  --dplus-accent-color-hue: 120;
+  --dplus-accent-color-saturation: 70%;
+  --dplus-accent-color-lightness: 40%;
+
+  /* Foreground color: Softer green tones for readability. */
+  --dplus-foreground-color-hue-base: 120;
+  --dplus-foreground-color-hue-links: 100;
+  --dplus-foreground-color-saturation-amount: 0.8;
+  --dplus-foreground-color-lightness-amount: 0.8;
+
+  /* Background color: A lighter green for light theme. */
+  --dplus-background-color-hue: 120;
+  --dplus-background-color-saturation-amount: 0.3;
+  --dplus-background-color-lightness-amount: 0.9;
+  --dplus-background-color-alpha: 0.8;
+}
+
+:root {
+  /* Fonts (unchanged). */
+  --dplus-font-ui: 'OpenDyslexia';
+  --dplus-font-body: 'OpenDyslexia';
+  --dplus-font-header: 'OpenDyslexia';
+
+  /* Corner radii (unchanged). */
+  --dplus-radius-ui: 10px;
+  --dplus-radius-avatar: 20%;
+  --dplus-radius-server: 20%;
+
+  /* Spacing (unchanged). */
+  --dplus-spacing-ui: 20px;
+  --dplus-spacing-app: 10px;
+
+  /* Icon sizes (unchanged). */
+  --dplus-icon-avatar-chat: 64px;
+  --dplus-icon-avatar-list: 32px;
+  --dplus-icon-avatar-profile: 80px;
+
+  --dplus-icon-server-sidebar: 48px;
+  --dplus-icon-server-list: 32px;
+
+  /* Home icon paths need hosting (unchanged). */
+  --dplus-icon-home-dark: url(C:\Users\Sean\Desktop\Youtube\Assets\Images\FNF\PhrogInside.png);
+  --dplus-icon-home-light: url(C:\Users\Sean\Desktop\Youtube\Assets\Images\FNF\PhrogInside.png);
+}
+
+
+/* Apply backdrop-filter to additional areas */
+.typeWindows_a934d8:not(.messageContent_f9f2ca):not(.markup_f8f345), 
+.withFrame_a934d8:not(.messageContent_f9f2ca):not(.markup_f8f345), 
+.wrapper_fea3ef:not(.messageContent_f9f2ca):not(.markup_f8f345),
+.sidebar_a4d4d9:not(.messageContent_f9f2ca):not(.markup_f8f345),
+.container_b2ca13:not(.messageContent_f9f2ca):not(.markup_f8f345),
+.panels_a4d4d9:not(.messageContent_f9f2ca):not(.markup_f8f345){
+  backdrop-filter: blur(5px) contrast(1.2);
+  transform: translate(-2px, 2px);
+  background: rgba(0, 0, 0, 0.8); /* To avoid rendering artifacts */
+  z-index: 9;
+}
+
+*[style*="rgba("]:not(.messageContent_f9f2ca):not(.markup_f8f345) {
+  backdrop-filter: blur(15px) contrast(1.2);
+  transform: translate(-2px, 2px);
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.itemsContainer_ef3116{
+    transform: translateX(-10%);
+}
+
+.subtitleContainer_f75fb0{
+  transform: translateY(10%);
+}
+
+/* Raindrop effect styles */
+.rain-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.raindrop {
+  position: absolute;
+  border-radius: 50%;
+  background-image: var(--dplus-backdrop);
+  background-size: 5% 5%;
+  background-position: center;
+  transform: rotate(180deg);
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  from {
+    transform: translateY(-100vh);
+  }
+  to {
+    transform: translateY(100vh);
+  }
+}
+
+.sidebarList_c48ade.sidebarListRounded_c48ade, .wrapper_ef3116.guilds_c48ade{
+  backdrop-filter: blur(3px) contrast(1.2);
+  transform: translateY(6px);
+  background: rgba(0, 0, 0, 0.8); /* To avoid rendering artifacts */
+}
+
+.avatar_c19a55 {
+  transform: translateY(-10px);
+}
