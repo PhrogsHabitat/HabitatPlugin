@@ -148,12 +148,6 @@
   }
 }
 
-.sidebarList_c48ade.sidebarListRounded_c48ade, .wrapper_ef3116.guilds_c48ade{
-  backdrop-filter: blur(3px) contrast(1.2);
-  transform: translateY(6px);
-  background: rgba(0, 0, 0, 0.8); /* To avoid rendering artifacts */
-}
-
 .avatar_c19a55 {
   transform: translateY(-10px);
 }
