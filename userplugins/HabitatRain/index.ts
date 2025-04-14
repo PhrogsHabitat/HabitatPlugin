@@ -29,10 +29,10 @@ const setForestBackground = () => {
     forestBackground = document.createElement("video");
     forestBackground.src = "https://phrogshabitat.github.io/forestShit.mp4";
     forestBackground.style.position = "fixed";
-    forestBackground.style.top = "0";
+    forestBackground.style.top = "-75px"; // Adjusted to position the background up
     forestBackground.style.left = "0";
-    forestBackground.style.width = "100vw";
-    forestBackground.style.height = "100vh";
+    forestBackground.style.width = "130vw";
+    forestBackground.style.height = "130vh";
     forestBackground.style.objectFit = "cover";
     forestBackground.style.zIndex = "-1";
     forestBackground.autoplay = true;
@@ -81,9 +81,12 @@ const StartRain = (preset: string = "Heavy", useLightning = true, useSound = tru
         raindrop.style.width = "3px";
         raindrop.style.height = "40px";
         raindrop.style.backgroundColor = "rgba(173, 216, 230, 0.08)";
+
+        const randomSpeed = config.fallSpeed + (Math.random() * 0.8 - 0.4); // Add random variation of ±0.4
         raindrop.style.animation = config.angle
-            ? `fallDiagonal ${Math.random() * 0.2 + (screenHeight / 1000) * config.fallSpeed}s linear infinite`
-            : `fall ${Math.random() * 0.2 + (screenHeight / 1000) * config.fallSpeed}s linear infinite`;
+            ? `fallDiagonal ${Math.random() * 0.2 + (screenHeight / 1000) * randomSpeed}s linear infinite`
+            : `fall ${Math.random() * 0.2 + (screenHeight / 1000) * randomSpeed}s linear infinite`;
+
         if (config.angle) {
             raindrop.style.setProperty("--angle", config.angle.toString());
         }
@@ -170,6 +173,21 @@ const addRainStyles = () => {
         @keyframes fallDiagonal {
             to { transform: translateY(100vh) translateX(calc(var(--angle) * 1px)); }
         }
+        @keyframes borderGlow {
+            0% {
+                outline-color: rgba(0, 255, 0, 0.5);
+                outline-offset: -10px;
+            }
+            50% {
+                outline-color: rgba(0, 255, 0, 1);
+                outline-offset: -10px;
+            }
+            100% {
+                outline-color: rgba(0, 255, 0, 0.5);
+                outline-offset: -10px;
+            }
+        }
+        
     `;
     document.head.appendChild(style);
 };
