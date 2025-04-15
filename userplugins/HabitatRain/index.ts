@@ -78,17 +78,19 @@ const StartRain = (preset: string = "Heavy", useLightning = true, useSound = tru
         raindrop.style.position = "absolute";
         raindrop.style.top = `${Math.random() * 1}vh`;
         raindrop.style.left = `${Math.random() * 100}vw`;
-        raindrop.style.width = "3px";
-        raindrop.style.height = "40px";
+        const dropLength = Math.random() * 15 + 50; // Random length between 50px and 65px
+        raindrop.style.height = `${dropLength}px`;
+        raindrop.style.width = `${Math.max(1, 5 - dropLength / 30)}px`; // Width decreases as length increases
         raindrop.style.backgroundColor = "rgba(173, 216, 230, 0.08)";
 
-        const randomSpeed = config.fallSpeed + (Math.random() * 0.8 - 0.4); // Add random variation of ±0.4
+        const randomSpeed = config.fallSpeed + (Math.random() * 1.4 - 0.5); // Add random variation of ±0.8
         raindrop.style.animation = config.angle
             ? `fallDiagonal ${Math.random() * 0.2 + (screenHeight / 1000) * randomSpeed}s linear infinite`
             : `fall ${Math.random() * 0.2 + (screenHeight / 1000) * randomSpeed}s linear infinite`;
 
         if (config.angle) {
             raindrop.style.setProperty("--angle", config.angle.toString());
+            raindrop.style.transform = `rotate(${-config.angle}deg)`;
         }
         rainOverlay.appendChild(raindrop);
     }
@@ -187,7 +189,7 @@ const addRainStyles = () => {
                 outline-offset: -10px;
             }
         }
-        
+
     `;
     document.head.appendChild(style);
 };
