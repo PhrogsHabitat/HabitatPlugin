@@ -264,7 +264,7 @@ export default definePlugin({
     name: "Habitat Rain",
     description: "A plugin that makes you feel at home in your habitat.",
     authors: [{ name: "PhrogsHabitat", id: 788145360429252610n }],
-    version: "2.0.0",
+    version: "2.0.2",
     settings,
     start() {
         console.log("HabitatRain started!");
