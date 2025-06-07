@@ -17,6 +17,8 @@ let sunElement: HTMLDivElement | null = null;
 let moonElement: HTMLDivElement | null = null;
 let sunMoonInterval: number | null = null;
 
+let isPluginActive = false; // Tracks whether the plugin is active
+
 const setGalaxyBackground = () => {
     if (galaxyBackground) return;
 
@@ -230,7 +232,9 @@ const settings = definePluginSettings({
         description: "Set the number of stardust particles (0 = none, 200 = max).",
         default: 100,
         markers: [0, 50, 100, 150, 200],
-        onChange: () => StartStardust({ count: settings.store.stardustCount }),
+        onChange: () => {
+            if (isPluginActive) StartStardust({ count: settings.store.stardustCount });
+        },
     },
     stardustDrift: {
         type: OptionType.SELECT,
@@ -241,7 +245,9 @@ const settings = definePluginSettings({
             { label: "Float Drift", value: "float" },
         ],
         default: "float",
-        onChange: () => StartStardust({ drift: settings.store.stardustDrift }),
+        onChange: () => {
+            if (isPluginActive) StartStardust({ drift: settings.store.stardustDrift });
+        },
     },
     showSunAndMoon: {
         type: OptionType.SELECT,
@@ -252,10 +258,12 @@ const settings = definePluginSettings({
         ],
         default: "enabled",
         onChange: (value: string) => {
-            if (value === "enabled") {
-                createSunAndMoon();
-            } else {
-                removeSunAndMoon();
+            if (isPluginActive) {
+                if (value === "enabled") {
+                    createSunAndMoon();
+                } else {
+                    removeSunAndMoon();
+                }
             }
         },
     },
@@ -264,13 +272,15 @@ const settings = definePluginSettings({
         description: "Show the galaxy background",
         default: true,
         onChange: (value: boolean) => {
-            if (value) {
-                setGalaxyBackground();
-            } else {
-                removeGalaxyBackground();
+            if (isPluginActive) {
+                if (value) {
+                    setGalaxyBackground();
+                } else {
+                    removeGalaxyBackground();
+                }
             }
-        }
-    }
+        },
+    },
 });
 
 export default definePlugin({
@@ -281,6 +291,7 @@ export default definePlugin({
     settings,
     start() {
         console.log("Infinite started!");
+        isPluginActive = true; // Mark plugin as active
         addInfStyles();
         if (settings.store.showGalaxyBackground) setGalaxyBackground();
         if (settings.store.showSunAndMoon) createSunAndMoon();
@@ -288,6 +299,7 @@ export default definePlugin({
     },
     stop() {
         console.log("Infinite stopped!");
+        isPluginActive = false; // Mark plugin as inactive
         StopStardust();
         removeGalaxyBackground();
         removeSunAndMoon();

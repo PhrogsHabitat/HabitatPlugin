@@ -1,5 +1,12 @@
 # 🌟 Habitat Rain - Update Log
 
+## Version 3.0.3 (Upcoming)
+
+### 🔥 New Features
+- **Plugin Activity Tracking**: Introduced an `isPluginActive` variable to ensure settings changes are saved but not applied when the plugin is inactive. This prevents unintended behavior when modifying settings while the plugin is stopped.
+
+---
+
 ## Version 3.0.2 (Latest)
 
 ### 🔥 New Features

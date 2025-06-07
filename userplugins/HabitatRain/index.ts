@@ -22,6 +22,7 @@ let animationFrameId: number | null = null;
 let startTime: number = 0;
 let isContextLost = false;
 let shouldReinitialize = false;
+let isPluginActive = false; // Tracks whether the plugin is active
 
 const defaultRainColor = [0.4, 0.5, 0.8]; // Bluish rain color
 
@@ -620,67 +621,83 @@ const settings = definePluginSettings({
         ],
         default: "Heavy",
         onChange: (preset: string) => {
-            updatePresetSettings(preset);
-            StartRain(preset);
+            if (isPluginActive) {
+                updatePresetSettings(preset);
+                StartRain(preset);
+            }
         },
     },
     enableThunder: {
         type: OptionType.BOOLEAN,
         description: "Enable or disable thunder.",
-        default: true, // Thunder is enabled by default
+        default: true,
         onChange: (value: boolean) => {
-            console.log(`Thunder has been ${value ? "enabled" : "disabled"}.`);
+            if (isPluginActive) {
+                console.log(`Thunder has been ${value ? "enabled" : "disabled"}.`);
+            }
         },
-        },
-        rainVolume: {
+    },
+    rainVolume: {
         type: OptionType.SLIDER,
         description: "Adjust the rain sound volume (0 = mute, 100 = max).",
         default: defaultConfigs.Heavy.volume,
         markers: [0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91, 100],
-        onChange: updateRainVolume,
+        onChange: () => {
+            if (isPluginActive) updateRainVolume();
         },
-        rainIntensity: {
+    },
+    rainIntensity: {
         type: OptionType.SLIDER,
         description: "Rain effect intensity (0 = none, 1 = max).",
         default: defaultConfigs.Heavy.intensity,
         markers: [0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.7, 0.77, 0.84, 0.91, 1],
-        onChange: updateRainEffect,
+        onChange: () => {
+            if (isPluginActive) updateRainEffect();
         },
-        rainScale: {
+    },
+    rainScale: {
         type: OptionType.SLIDER,
         description: "Raindrop size scale.",
         default: defaultConfigs.Heavy.scale,
         markers: [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0],
-        onChange: updateRainEffect,
+        onChange: () => {
+            if (isPluginActive) updateRainEffect();
         },
-        rainAngle: {
+    },
+    rainAngle: {
         type: OptionType.SLIDER,
         description: "Adjust the angle of the rain (in degrees).",
         default: defaultConfigs.Heavy.angle,
         markers: [-45, -39, -33, -27, -21, -15, -9, -3, 3, 9, 15, 21, 27, 33, 45],
-        onChange: updateRainEffect,
+        onChange: () => {
+            if (isPluginActive) updateRainEffect();
         },
-        rainSpeed: {
+    },
+    rainSpeed: {
         type: OptionType.SLIDER,
         description: "Adjust the speed of the rain.",
         default: defaultConfigs.Heavy.speed,
         markers: [0.1, 0.24, 0.38, 0.52, 0.66, 0.8, 0.94, 1.08, 1.22, 1.36, 1.5, 1.64, 1.78, 1.92, 2.0],
-        onChange: updateRainEffect,
+        onChange: () => {
+            if (isPluginActive) updateRainEffect();
         },
-        sound: {
+    },
+    sound: {
         type: OptionType.STRING,
         description: "URL of the rain sound effect.",
         default: defaultConfigs.Heavy.sound,
-        },
-        showForestBackground: {
+    },
+    showForestBackground: {
         type: OptionType.BOOLEAN,
         description: "Show the forest background.",
         default: true,
         onChange: (value: boolean) => {
-            if (value) {
-                setForestBackground();
-            } else {
-                removeForestBackground();
+            if (isPluginActive) {
+                if (value) {
+                    setForestBackground();
+                } else {
+                    removeForestBackground();
+                }
             }
         },
     },
@@ -694,11 +711,13 @@ export default definePlugin({
     settings,
     start() {
         console.log("HabitatRain started!");
+        isPluginActive = true; // Mark plugin as active
         if (this.settings.store.showForestBackground) setForestBackground();
         StartRain(this.settings.store.preset || "Heavy", true, true);
     },
     stop() {
         console.log("HabitatRain stopped!");
+        isPluginActive = false; // Mark plugin as inactive
         StopRain();
         removeForestBackground();
     },
