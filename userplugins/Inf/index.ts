@@ -287,7 +287,7 @@ export default definePlugin({
     name: "Infinite",
     description: "A Vencord Plugin that adds cosmic effects with galaxy background to Discord",
     authors: [{ name: "PhrogsHabitat", id: 788145360429252610n }],
-    version: "1.3.0",
+    version: "2.0.0",
     settings,
     start() {
         console.log("Infinite started!");

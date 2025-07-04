@@ -30,7 +30,7 @@ let originalPushState: History["pushState"];
 
 let isPluginActive = false; // Tracks whether the plugin is active
 
-const defaultRainColor = [0.4, 0.5, 0.8]; // Bluish rain color
+const defaultRainColor = [0.2, 0.3, 1.0]; // Bluish rain color
 
 const thunderPool = [
     "https://phrogshabitat.github.io/thunder1.mp3",
@@ -40,6 +40,297 @@ const thunderPool = [
     "https://phrogshabitat.github.io/thunder5.mp3",
 ];
 
+const mistLayers: HTMLDivElement[] = [];
+let mistTimer = 0;
+
+const mistConfigs = [
+    { id: "mist0", image: "mistMid", zIndex: 1000, speedX: 42, amplitude: 70, freq: 0.08, scale: 1.2, alpha: 0.6, wrapWidth: 2000 },
+    { id: "mist1", image: "mistMid", zIndex: 1000, speedX: 35, amplitude: 80, freq: 0.07, scale: 1.1, alpha: 0.6, wrapWidth: 2200 },
+    { id: "mist2", image: "mistBack", zIndex: 1001, speedX: -20, amplitude: 60, freq: 0.09, scale: 1.3, alpha: 0.8, wrapWidth: 1800 },
+    { id: "mist3", image: "mistMid", zIndex: 99, speedX: -12, amplitude: 70, freq: 0.07, scale: 0.9, alpha: 0.5, wrapWidth: 2400 },
+    { id: "mist4", image: "mistBack", zIndex: 88, speedX: 10, amplitude: 50, freq: 0.08, scale: 0.8, alpha: 1, wrapWidth: 2600 },
+    { id: "mist5", image: "mistMid", zIndex: 39, speedX: 5, amplitude: 100, freq: 0.02, scale: 1.4, alpha: 1, wrapWidth: 3000 }
+];
+
+type WeatherPhase = "DRIZZLE" | "LIGHT_RAIN" | "HEAVY_RAIN" | "DOWNPOUR" | "THUNDERSTORM" | "CLEARING";
+type TimeOfDay = "DAWN" | "MORNING" | "AFTERNOON" | "DUSK" | "NIGHT";
+const WEATHER_CYCLE_DURATION = 45 * 60 * 1000; // 45 minutes per full cycle
+const PHASE_TRANSITION_TIME = 5 * 60 * 1000; // 5 minutes for transitions
+const MAX_WIND_SHIFT = 15; // Max degrees wind can shift per cycle
+let dynamicWeatherInterval: NodeJS.Timeout | null = null;
+let currentWeatherPhase: WeatherPhase = "LIGHT_RAIN";
+let nextWeatherPhase: WeatherPhase = "LIGHT_RAIN";
+let phaseStartTime: number = Date.now();
+let phaseProgress: number = 0;
+let currentWindDirection: number = -3; // Base wind direction in degrees
+let isDynamicMode: boolean = false;
+let weatherIntensity: number = 0.5;
+let timeOfDay: TimeOfDay = "AFTERNOON";
+
+
+const weatherPhaseConfigs: Record<WeatherPhase, { intensity: number; scale: number; speed: number; volume: number; mist: number; thunder: number; angleVariation: number; }> = {
+    DRIZZLE: {
+        intensity: 0.15,
+        scale: 1.8,
+        speed: 0.3,
+        volume: 30,
+        mist: 0.4,
+        thunder: 0.01,
+        angleVariation: 5
+    },
+    LIGHT_RAIN: {
+        intensity: 0.35,
+        scale: 1.4,
+        speed: 0.5,
+        volume: 45,
+        mist: 0.55,
+        thunder: 0.03,
+        angleVariation: 7
+    },
+    HEAVY_RAIN: {
+        intensity: 0.65,
+        scale: 1.1,
+        speed: 0.9,
+        volume: 60,
+        mist: 0.7,
+        thunder: 0.07,
+        angleVariation: 10
+    },
+    DOWNPOUR: {
+        intensity: 0.95,
+        scale: 0.9,
+        speed: 1.4,
+        volume: 75,
+        mist: 0.9,
+        thunder: 0.12,
+        angleVariation: 12
+    },
+    THUNDERSTORM: {
+        intensity: 0.85,
+        scale: 1.0,
+        speed: 1.7,
+        volume: 85,
+        mist: 0.95,
+        thunder: 0.25,
+        angleVariation: 15
+    },
+    CLEARING: {
+        intensity: 0.1,
+        scale: 2.2,
+        speed: 0.2,
+        volume: 15,
+        mist: 0.25,
+        thunder: 0.001,
+        angleVariation: 3
+    }
+};
+
+const timeOfDayConfigs: Record<TimeOfDay, { lightMod: number; color: [number, number, number]; mistMod: number; }> = {
+    DAWN: {
+        lightMod: 0.7,
+        color: [0.3, 0.2, 0.4], // Purple-ish
+        mistMod: 0.9
+    },
+    MORNING: {
+        lightMod: 1.0,
+        color: [0.2, 0.3, 1.0], // Standard blue
+        mistMod: 0.7
+    },
+    AFTERNOON: {
+        lightMod: 1.1,
+        color: [0.25, 0.35, 1.0], // Slightly brighter blue
+        mistMod: 0.6
+    },
+    DUSK: {
+        lightMod: 0.6,
+        color: [0.4, 0.2, 0.3], // Reddish
+        mistMod: 0.85
+    },
+    NIGHT: {
+        lightMod: 0.4,
+        color: [0.15, 0.15, 0.3], // Dark blue
+        mistMod: 1.0
+    }
+};
+
+const determineNextPhase = (current: WeatherPhase): WeatherPhase => {
+    const rand = Math.random();
+    const hour = new Date().getHours();
+
+    // More likely to have storms in afternoon
+    const stormChance = hour >= 12 && hour <= 18 ? 0.4 : 0.2;
+
+    // More likely to clear at night
+    const clearingChance = hour >= 21 || hour <= 6 ? 0.5 : 0.2;
+
+    switch (current) {
+        case "DRIZZLE":
+            return rand < 0.6 ? "LIGHT_RAIN" : "CLEARING";
+        case "LIGHT_RAIN":
+            if (rand < 0.3) return "DRIZZLE";
+            if (rand < 0.6) return "HEAVY_RAIN";
+            if (rand < stormChance + 0.6) return "THUNDERSTORM";
+            return "CLEARING";
+        case "HEAVY_RAIN":
+            if (rand < 0.2) return "LIGHT_RAIN";
+            if (rand < 0.5) return "DOWNPOUR";
+            if (rand < stormChance + 0.5) return "THUNDERSTORM";
+            return "CLEARING";
+        case "DOWNPOUR":
+            if (rand < 0.3) return "HEAVY_RAIN";
+            if (rand < stormChance + 0.3) return "THUNDERSTORM";
+            return "CLEARING";
+        case "THUNDERSTORM":
+            if (rand < 0.7) return "HEAVY_RAIN";
+            return "CLEARING";
+        case "CLEARING":
+            return rand < clearingChance ? "DRIZZLE" : "LIGHT_RAIN";
+        default:
+            return "LIGHT_RAIN";
+    }
+};
+
+const updateTimeOfDay = () => {
+    const hour = new Date().getHours();
+
+    if (hour >= 5 && hour < 8) timeOfDay = "DAWN";
+    else if (hour >= 8 && hour < 12) timeOfDay = "MORNING";
+    else if (hour >= 12 && hour < 17) timeOfDay = "AFTERNOON";
+    else if (hour >= 17 && hour < 21) timeOfDay = "DUSK";
+    else timeOfDay = "NIGHT";
+};
+
+const updateWeatherParameters = () => {
+    if (!isPluginActive || !isDynamicMode) return;
+
+    const now = Date.now();
+    const elapsed = now - phaseStartTime;
+    phaseProgress = Math.min(elapsed / WEATHER_CYCLE_DURATION, 1);
+
+    // Update time of day
+    updateTimeOfDay();
+
+    // Determine if we should transition to next phase
+    if (phaseProgress >= 1) {
+        currentWeatherPhase = nextWeatherPhase;
+        nextWeatherPhase = determineNextPhase(currentWeatherPhase);
+        phaseStartTime = now;
+        phaseProgress = 0;
+
+        // Gradually shift wind direction
+        const phaseConfig = weatherPhaseConfigs[nextWeatherPhase];
+        const maxShift = phaseConfig.angleVariation;
+        currentWindDirection += (Math.random() * maxShift * 2) - maxShift;
+        currentWindDirection = Math.max(-45, Math.min(45, currentWindDirection));
+    }
+
+    // Calculate transition progress (0-1)
+    const transitionProgress = Math.min(elapsed / PHASE_TRANSITION_TIME, 1);
+    const isTransitioning = transitionProgress < 1;
+
+    // Get configs for current and next phases
+    const currentConfig = weatherPhaseConfigs[currentWeatherPhase];
+    const nextConfig = weatherPhaseConfigs[nextWeatherPhase];
+    const timeConfig = timeOfDayConfigs[timeOfDay];
+
+    // Apply time of day lighting
+    if (gl && program) {
+        const rainColorUniform = gl.getUniformLocation(program, "uRainColor");
+        if (rainColorUniform) {
+            gl.uniform3fv(rainColorUniform, timeConfig.color);
+        }
+    }
+
+    // Interpolate between current and next phase during transition
+    if (isTransitioning) {
+        settings.store.rainIntensity = lerp(
+            currentConfig.intensity,
+            nextConfig.intensity,
+            transitionProgress
+        );
+
+        settings.store.rainScale = lerp(
+            currentConfig.scale,
+            nextConfig.scale,
+            transitionProgress
+        );
+
+        settings.store.rainSpeed = lerp(
+            currentConfig.speed,
+            nextConfig.speed,
+            transitionProgress
+        );
+
+        settings.store.rainVolume = lerp(
+            currentConfig.volume,
+            nextConfig.volume,
+            transitionProgress
+        );
+
+        settings.store.mistIntensity = lerp(
+            currentConfig.mist,
+            nextConfig.mist,
+            transitionProgress
+        );
+
+        // Apply wind direction with time of day variation
+        settings.store.rainAngle = currentWindDirection +
+            (Math.sin(now / 60000) * currentConfig.angleVariation);
+    }
+    // Or just apply current phase with natural fluctuations
+    else {
+        // Natural fluctuations within the phase
+        const fluctuationIntensity = 0.1;
+        const timeVariation = Math.sin(now / 300000) * fluctuationIntensity;
+
+        settings.store.rainIntensity = currentConfig.intensity +
+            (timeVariation * currentConfig.intensity);
+
+        settings.store.rainScale = currentConfig.scale +
+            (timeVariation * 0.1);
+
+        settings.store.rainSpeed = currentConfig.speed +
+            (timeVariation * 0.2);
+
+        // Apply wind direction with time of day variation
+        settings.store.rainAngle = currentWindDirection +
+            (Math.sin(now / 60000) * currentConfig.angleVariation);
+
+        // Apply time of day mist effect
+        settings.store.mistIntensity = currentConfig.mist * timeConfig.mistMod;
+    }
+
+    // Apply time of day lighting to rain
+    weatherIntensity = settings.store.rainIntensity * timeConfig.lightMod;
+
+    // Update thunder frequency based on phase
+    settings.store.enableThunder = nextConfig.thunder > 0.05;
+    if (currentRain?.lightningInterval) {
+        clearInterval(currentRain.lightningInterval);
+        currentRain.lightningInterval = undefined;
+    }
+
+    if (settings.store.enableThunder && currentRain) {
+        const interval = Math.max(5000, 30000 - (nextConfig.thunder * 25000));
+        const lightningInterval = setInterval(() => {
+            if (Math.random() < nextConfig.thunder) {
+                // Lightning flash implementation
+            }
+        }, interval) as unknown as number;
+
+        currentRain.lightningInterval = lightningInterval;
+    }
+
+    // Update effects with new parameters
+    updateRainVolume();
+    updateRainEffect();
+    updateMistEffect();
+};
+
+const lerp = (start: number, end: number, t: number): number => {
+    return start + (end - start) * t;
+};
+
 const defaultConfigs = {
     Normal: {
         volume: 70,
@@ -47,8 +338,9 @@ const defaultConfigs = {
         scale: 1.2,
         angle: -3,
         speed: 0.5,
-        thunderRarity: 0.05, // Rare thunder
-        sound: "https://phrogshabitat.github.io/RainSoft.mp3"
+        thunderRarity: 0.05,
+        sound: "https://phrogshabitat.github.io/RainSoft.mp3",
+        mistIntensity: 0.7
     },
     Slow: {
         volume: 56,
@@ -56,8 +348,9 @@ const defaultConfigs = {
         scale: 2.0,
         angle: 0,
         speed: 0.4,
-        thunderRarity: 0.02, // Very rare thunder
-        sound: "https://phrogshabitat.github.io/RainSoft.mp3"
+        thunderRarity: 0.02,
+        sound: "https://phrogshabitat.github.io/RainSoft.mp3",
+        mistIntensity: 0.4
     },
     Heavy: {
         volume: 56,
@@ -65,8 +358,9 @@ const defaultConfigs = {
         scale: 1.0,
         angle: 7.5,
         speed: 1.2,
-        thunderRarity: 0.1, // Frequent thunder
-        sound: "https://phrogshabitat.github.io/RainHeavy.mp3"
+        thunderRarity: 0.1,
+        sound: "https://phrogshabitat.github.io/RainHeavy.mp3",
+        mistIntensity: 0.85
     },
     Downpour: {
         volume: 70,
@@ -74,13 +368,189 @@ const defaultConfigs = {
         scale: 1.4,
         angle: 15,
         speed: 1.7,
-        thunderRarity: 0.15, // Very frequent thunder
-        sound: "https://phrogshabitat.github.io/RainDownpour.mp3"
+        thunderRarity: 0.15,
+        sound: "https://phrogshabitat.github.io/RainDownpour.mp3",
+        mistIntensity: 1
     },
 };
 
 let contextLostCount = 0;
 const MAX_RETRIES = 3;
+
+// Instead of a single div per mist layer, use two for crossfade
+const createMistLayer = (config: typeof mistConfigs[0]) => {
+    // Container for both mist images
+    const container = document.createElement("div");
+    container.id = `habitat-mist-container-${config.id}`;
+    container.style.position = "fixed";
+    container.style.top = "0";
+    container.style.left = "0";
+    container.style.width = `${config.wrapWidth * 2}px`;
+    container.style.height = "130vh";
+    container.style.zIndex = config.zIndex.toString();
+    container.style.pointerEvents = "none";
+    container.style.mixBlendMode = "screen";
+    container.style.willChange = "transform";
+    container.style.overflow = "hidden";
+
+    // Two mist images for crossfade
+    const mistA = document.createElement("div");
+    mistA.className = "habitat-mist";
+    mistA.style.position = "absolute";
+    mistA.style.top = "0";
+    mistA.style.left = "0";
+    mistA.style.width = `${config.wrapWidth}px`;
+    mistA.style.height = "130vh";
+    mistA.style.backgroundImage = `url(https://phrogshabitat.github.io/${config.image}.png)`;
+    mistA.style.backgroundRepeat = "repeat-x";
+    mistA.style.backgroundSize = "auto 100%";
+    mistA.style.opacity = config.alpha.toString();
+    mistA.style.transform = `scale(${config.scale})`;
+    mistA.style.transition = "opacity 0.6s linear";
+    mistA.style.pointerEvents = "none";
+    mistA.style.filter = "blur(1.2px)"; // Increased blur for softer edges
+    // Add mask to fade left/right edges and hide seams
+    mistA.style.maskImage = "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)";
+    mistA.style.webkitMaskImage = "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)";
+
+    const mistB = mistA.cloneNode() as HTMLDivElement;
+    mistB.style.left = `${config.wrapWidth}px`;
+    mistB.style.opacity = "0";
+    // mask/blur already set by cloneNode
+
+    container.appendChild(mistA);
+    container.appendChild(mistB);
+
+    // Store refs for animation
+    (container as any)._mistA = mistA;
+    (container as any)._mistB = mistB;
+    (container as any)._config = config;
+    (container as any)._phase = 0;
+
+    document.body.appendChild(container);
+    return container;
+};
+
+const setupMistEffect = () => {
+    if (mistLayers.length > 0) return;
+
+    mistConfigs.forEach(config => {
+        const layer = createMistLayer(config);
+        mistLayers.push(layer);
+    });
+
+    handleMistResize();
+};
+
+// Update mist positions (vertical oscillation & crossfade)
+const updateMist = (deltaTime: number) => {
+    if (!settings.store.enableMist || !mistLayers.length) return;
+
+    mistTimer += deltaTime * 0.3;
+
+    mistLayers.forEach((container, index) => {
+        const config = mistConfigs[index];
+        const mistA = (container as any)._mistA as HTMLDivElement;
+        const mistB = (container as any)._mistB as HTMLDivElement;
+        const wrapWidth = Math.max(window.innerWidth, window.innerHeight) * 2;
+        const speed = config.speedX;
+        const { scale } = config;
+        const alpha = config.alpha * settings.store.mistIntensity;
+
+        // Vertical oscillation
+        const yOffset = Math.sin(mistTimer * config.freq) * config.amplitude;
+
+        // Calculate horizontal offset for seamless loop
+        const now = performance.now() / 1000;
+        const totalWidth = wrapWidth;
+        const x = -((now * speed) % totalWidth);
+
+        // Crossfade progress: 0..1 over the loop
+        const fadeProgress = ((now * speed) % totalWidth) / totalWidth;
+
+        // Fade A out, B in
+        mistA.style.opacity = `${alpha * (1 - fadeProgress)}`;
+        mistB.style.opacity = `${alpha * fadeProgress}`;
+
+        // Move both images
+        mistA.style.transform = `translateY(${yOffset}px) scale(${scale}) translateX(${x}px)`;
+        mistB.style.transform = `translateY(${yOffset}px) scale(${scale}) translateX(${x + totalWidth}px)`;
+    });
+};
+
+const handleMistResize = () => {
+    mistLayers.forEach((container, index) => {
+        const config = mistConfigs[index];
+        const wrapWidth = Math.max(window.innerWidth, window.innerHeight) * 2;
+        container.style.width = `${wrapWidth * 2}px`;
+        const mistA = (container as any)._mistA as HTMLDivElement;
+        const mistB = (container as any)._mistB as HTMLDivElement;
+        mistA.style.width = `${wrapWidth}px`;
+        mistB.style.width = `${wrapWidth}px`;
+        mistB.style.left = `${wrapWidth}px`;
+    });
+};
+
+// Remove mist effect
+const removeMist = () => {
+    mistLayers.forEach(container => {
+        if (container.parentNode) {
+            container.parentNode.removeChild(container);
+        }
+    });
+    mistLayers.length = 0;
+};
+
+const updateDynamicWeather = () => {
+    if (!isPluginActive || !isDynamicMode) return;
+
+    const now = new Date();
+    const hour = now.getHours();
+    let preset = "Slow";
+
+    // Map times to weather presets
+    if (hour >= 6 && hour < 9) preset = "Slow"; // Early morning - gentle rain
+    else if (hour >= 9 && hour < 12) preset = "Normal"; // Late morning - normal rain
+    else if (hour >= 12 && hour < 15) preset = "Heavy"; // Afternoon - heavy rain
+    else if (hour >= 15 && hour < 18) preset = "Downpour"; // Late afternoon - intense downpour
+    else if (hour >= 18 && hour < 21) preset = "Heavy"; // Evening - heavy rain
+    else if (hour >= 21 || hour < 6) { // Night - gentle rain with more thunder
+        preset = "Slow";
+        settings.store.enableThunder = true;
+        settings.store.mistIntensity = 0.85; // More mist at night
+    }
+
+    // Apply the preset
+    updatePresetSettings(preset);
+    StartRain(preset, true, true);
+    console.log(`Dynamic weather updated to ${preset} for ${hour}:00`);
+};
+
+const startDynamicWeather = () => {
+    if (dynamicWeatherInterval) clearInterval(dynamicWeatherInterval);
+    isDynamicMode = true;
+
+    // Initialize weather state
+    phaseStartTime = Date.now();
+    currentWeatherPhase = "LIGHT_RAIN";
+    nextWeatherPhase = determineNextPhase(currentWeatherPhase);
+    updateTimeOfDay();
+    currentWindDirection = -3;
+
+    // Start update loop
+    dynamicWeatherInterval = setInterval(updateWeatherParameters, 10000); // Update every 10 seconds
+    console.log("Dynamic weather simulation started");
+};
+
+const stopDynamicWeather = () => {
+    if (dynamicWeatherInterval) {
+        clearInterval(dynamicWeatherInterval);
+        dynamicWeatherInterval = null;
+    }
+    isDynamicMode = false;
+    console.log("Dynamic weather simulation stopped");
+};
+
 
 const setForestBackground = () => {
     if (forestBackground) return;
@@ -114,6 +584,10 @@ const setForestBackground = () => {
             }
         }, 2000);
     };
+
+    if (settings.store.enableMist) {
+        setupMistEffect();
+    }
 };
 
 const setupRainEffect = () => {
@@ -565,6 +1039,8 @@ const compileShader = (gl: WebGLRenderingContext, type: number, source: string):
     return shader;
 };
 
+let lastFrameTime = performance.now();
+
 const animateRainEffect = () => {
     // If context is lost, reinitialize everything
     if (isContextLost) {
@@ -605,6 +1081,13 @@ const animateRainEffect = () => {
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        // Update mist position
+        const now = performance.now();
+        const deltaTime = (now - lastFrameTime) / 1000;
+        lastFrameTime = now;
+        updateMist(deltaTime);
+
     } catch (e) {
         console.error("Error in animation loop:", e);
         // Don't schedule next frame
@@ -623,6 +1106,8 @@ const removeForestBackground = () => {
         forestBackground.parentNode.removeChild(forestBackground);
         forestBackground = null;
     }
+
+    removeMist();
 };
 
 const updatePresetSettings = (preset: string) => {
@@ -634,6 +1119,11 @@ const updatePresetSettings = (preset: string) => {
         settings.store.rainAngle = config.angle;
         settings.store.rainSpeed = config.speed;
         settings.store.sound = config.sound;
+        settings.store.mistIntensity = config.mistIntensity; // Apply mist intensity
+
+        if (isPluginActive && settings.store.enableMist) {
+            updateMistEffect();
+        }
 
         console.log("Preset settings applied:", preset);
     } else {
@@ -734,10 +1224,29 @@ const updateRainVolume = () => {
 };
 
 const updateRainEffect = () => {
-    // Uniforms are updated in animation loop
+    // Uniforms are updated in animation loop lol
+};
+
+const updateMistEffect = () => {
+    mistLayers.forEach((layer, index) => {
+        const baseAlpha = mistConfigs[index].alpha;
+        layer.style.opacity = `${baseAlpha * settings.store.mistIntensity}`;
+    });
 };
 
 const settings = definePluginSettings({
+    dynamicWeather: {
+        type: OptionType.BOOLEAN,
+        description: "Enable dynamic weather simulation with realistic patterns",
+        default: false,
+        onChange: (value: boolean) => {
+            if (value) {
+                startDynamicWeather();
+            } else {
+                stopDynamicWeather();
+            }
+        },
+    },
     preset: {
         type: OptionType.SELECT,
         description: "Choose a rain preset to quickly apply settings.",
@@ -763,6 +1272,29 @@ const settings = definePluginSettings({
             if (isPluginActive) {
                 console.log(`Thunder has been ${value ? "enabled" : "disabled"}.`);
             }
+        },
+    },
+    enableMist: {
+        type: OptionType.BOOLEAN,
+        description: "Enable or disable the mist effect.",
+        default: true,
+        onChange: (value: boolean) => {
+            if (isPluginActive) {
+                if (value) {
+                    setupMistEffect();
+                } else {
+                    removeMist();
+                }
+            }
+        },
+    },
+    mistIntensity: {
+        type: OptionType.SLIDER,
+        description: "Adjust mist density and visibility.",
+        default: 0.7,
+        markers: [0, 0.14, 0.28, 0.42, 0.56, 0.7, 0.84, 1],
+        onChange: () => {
+            if (isPluginActive) updateMistEffect();
         },
     },
     rainVolume: {
@@ -843,13 +1375,14 @@ const handleResize = () => {
             }
         }
     }
+    handleMistResize();
 };
 
 export default definePlugin({
     name: "Habitat Rain",
     description: "A cozy plugin that makes you feel at home in the rain.",
     authors: [{ name: "PhrogsHabitat", id: 788145360429252610n }],
-    version: "3.0.2",
+    version: "4.0.0",
     settings,
     start() {
         console.log("HabitatRain started!");
@@ -857,14 +1390,16 @@ export default definePlugin({
 
         if (this.settings.store.showForestBackground) setForestBackground();
         StartRain(this.settings.store.preset || "Heavy", true, true);
-
+        if (this.settings.store.enableMist) setupMistEffect();
         window.addEventListener("resize", handleResize);
     },
     stop() {
         console.log("HabitatRain stopped!");
         isPluginActive = false;
         StopRain();
+        stopDynamicWeather(); // Add this line
         removeForestBackground();
+        removeMist();
         window.removeEventListener("resize", handleResize);
     },
 });
