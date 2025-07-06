@@ -52,10 +52,10 @@
   --dplus-foreground-color-lightness-amount: 0.9;
 
   /* Background color: A darker green to avoid harsh contrast. */
-  /* --dplus-background-color-hue: 120;
+  --dplus-background-color-hue: 120;
   --dplus-background-color-saturation-amount: 0.5;
-  --dplus-background-color-lightness-amount: 0.15; */
-  /* --dplus-background-color-alpha: 0.5; bro I spent forever trying to figure out why things has a dark tint :skull: */
+  --dplus-background-color-lightness-amount: 0.5;
+  --dplus-background-color-alpha: 0.5; /* bro I spent forever trying to figure out why things has a dark tint :skull: */
 }
 
 .theme-light {
@@ -128,8 +128,8 @@
   -webkit-filter: drop-shadow(-10px 10px 3px rgb(0, 0, 0));
 }
 .avatar_c19a55:hover {
-  transform: translateY(-5px);
-  -webkit-filter: drop-shadow(-6px 6px 2px rgb(0, 0, 0)) !important;
+	transform: translateY(-10px) scale(0.95);
+	-webkit-filter: drop-shadow(-6px 6px 2px rgb(0, 0, 0)) !important;
 }
 
 /* Sets the bottom section of the USERINFO pannel to invisible
@@ -154,7 +154,6 @@
 
 /* SERVERLIST + USERLIST -> Section containing both lists */
 .sidebar_c48ade{
-  
   background-color: rgba(0, 0, 0, 0)!important;
 }
 
@@ -247,15 +246,16 @@
 .group-spacing-24 { --group-spacing: var(--dplus-spacing-ui); }
 :is(.messageListItem__5126c, .quotedChatMessage__5126c) .message__5126c { 
 	background: var(--dplus-bgc-chatmsg);
-  margin-right: 1%;
+    margin-right: 1%;
 }
 
 .messageListItem__5126c .groupStart__5126c, .flash__03436.groupStart__5126c, .quotedChatMessage__5126c .groupStart__5126c {
 	border-radius: var(--dplus-radius-ui) var(--dplus-radius-ui) 0 0;
 	margin-top: 0;
+	
 }
 :not(.divider__5126c) + .messageListItem__5126c:has(.groupStart__5126c), .messageListItem__5126c + .flash__03436:has(.avatar_c19a55) {
-	margin-top: var(--group-spacing);
+	margin-top: var(--group-spacing);	
 }
 .wrapper_c19a55:hover, .wrapper_c19a55.selected__5126c {
 	background: var(--dplus-bgc-chatmsg-hover) !important;

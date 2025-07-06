@@ -6,14 +6,14 @@ Yo, Discord fam! Tired of the same ol' boring vibes? **Infinite** is here to spr
 
 ## 🌟 What’s Infinite?
 
-Infinite is a **Vencord plugin** that transforms your Discord into a galactic wonderland. Think galaxy backgrounds, floating stardust, and a rotating sun & moon that syncs with your system clock. It’s like Discord, but make it ✨ *aesthetic* ✨.
+Infinite is a **Vencord plugin** that transforms your Discord into a galactic wonderland. Think galaxy backgrounds, floating stardust, animated mist, and a rotating sun & moon that syncs with your system clock. It’s like Discord, but make it ✨ *aesthetic* ✨.
 
 ---
 
 ## 🔧 How to Use
 
 1. **Install the Plugin**:  
-   Drop the `Infinite` plugin into your Vencord setup. (You know the drill, right? 👀)
+   Drop the `Infinite` plugin into your Vencord setup.
 
 2. **Customize Your Vibes**:  
    Head to the plugin settings and tweak it to your liking:
@@ -21,6 +21,7 @@ Infinite is a **Vencord plugin** that transforms your Discord into a galactic wo
    - **Drift Animation**: Pick your fave vibe: `Up`, `Down`, or `Float`.
    - **Galaxy Background**: Toggle the cosmic backdrop on/off.
    - **Sun & Moon**: Enable/disable the celestial duo.
+   - **Mist Effect**: Enable/disable and adjust the density of animated mist.
 
 3. **Enjoy the Cosmic Feels**:  
    Sit back, relax, and let Infinite take your Discord to the next level. 🌌
@@ -32,7 +33,9 @@ Infinite is a **Vencord plugin** that transforms your Discord into a galactic wo
 - **Galaxy Background**: A stunning, high-res galaxy image that makes your Discord feel like the Milky Way. 🌠
 - **Stardust Particles**: Floating sparkles that drift around your screen. Customize the count and animation for max vibes. ✨
 - **Sun & Moon Animation**: Watch the sun and moon rotate across your screen, synced to your system clock. 🌞🌙
+- **Mist Effect**: Animated, multi-layered mist for extra cosmic atmosphere.
 - **Smooth Animations**: Everything is buttery smooth with transitions and animations that scream *chef’s kiss*. 👌
+- **Settings Save Without Applying When Inactive**: Changes in settings are saved but not applied unless the plugin is active.
 
 ---
 
@@ -56,11 +59,14 @@ Infinite is all about customization. Here’s what you can tweak:
 - **Sun & Moon**:  
   Enable/disable the rotating celestial objects. They’re synced to your system clock for that *real-time* vibe. 🌞🌙
 
+- **Mist Effect**:  
+  Enable/disable and adjust the density of the cosmic mist.
+
 ---
 
 ## 🚀 Installation
 
-1. Download the plugin from the [GitHub repo](https://github.com/PhrogsHabitat/HabitatRain) - Please make sure yall download the latest release before issueing :sob:
+1. Download the plugin from the [GitHub repo](https://github.com/PhrogsHabitat/HabitatRain).
 2. Add it to your Vencord plugins folder.
 3. Restart Discord and enable the plugin in your settings.
 4. Customize it to your heart’s content. 💖
@@ -78,6 +84,12 @@ Infinite is all about customization. Here’s what you can tweak:
 - **Sun & Moon Out of Sync?**  
   They’re synced to your system clock, so make sure your PC’s time is accurate. ⏰
 
+- **Mist Not Appearing?**  
+  Make sure the mist effect is enabled and your system supports it.
+
+- **Plugin Not Responding to Settings?**  
+  Settings changes are only applied when the plugin is active.
+
 ---
 
 ## 🧑‍🚀 Credits
@@ -85,7 +97,7 @@ Infinite is all about customization. Here’s what you can tweak:
 - **Plugin Creator**: [PhrogsHabitat](https://github.com/PhrogsHabitat)  
   > *Big brain energy went into this. 🐸*
 
-- **Version**: 1.3.0  
+- **Version**: 1.3.1  
   > *Latest and greatest, bb.*
 
 ---

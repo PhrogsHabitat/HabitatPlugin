@@ -1,13 +1,20 @@
 # 🌟 Habitat Rain - Update Log
 
-## Version 3.0.3 (Upcoming)
+## Version 4.0.0 (Latest)
 
-### 🔥 New Features
-- **Plugin Activity Tracking**: Introduced an `isPluginActive` variable to ensure settings changes are saved but not applied when the plugin is inactive. This prevents unintended behavior when modifying settings while the plugin is stopped.
+### 🚀 Major Update
+- **Dynamic Weather Simulation**: Realistic weather cycles, including drizzle, heavy rain, downpour, thunderstorms, and clearing, with smooth transitions and wind direction changes.
+- **Mist Effect**: Animated, multi-layered mist for extra atmosphere. Mist can be enabled/disabled and its density adjusted.
+- **Improved Error Handling**: Automatic recovery from video or WebGL errors, and better handling of Discord reloads.
+- **Settings Save Without Applying When Inactive**: Settings changes are now always saved, but only applied when the plugin is active.
+- **Performance Optimizations**: Reduced CPU usage, improved resource cleanup, and more robust handling of Discord reloads.
+- **UI/UX Enhancements**: More responsive resizing, improved rain and mist visuals, and better integration with Discord's UI.
+- **Thunder & Sound**: Enhanced thunder and rain sound logic, with custom sound URLs and more natural thunder frequency.
+- **Version Bump**: All plugin files and documentation now reflect version 4.0.0.
 
 ---
 
-## Version 3.0.2 (Latest)
+## Version 3.0.2
 
 ### 🔥 New Features
 - **WebGL Rain Shader**: Added GPU-accelerated rain animations for smoother and more realistic effects.

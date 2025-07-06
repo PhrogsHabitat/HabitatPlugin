@@ -1,24 +1,31 @@
 # HabitatRain & Infinite Plugins for Discord
 
-Welcome to the **HabitatRain** and **Infinite** plugins, designed to transform your Discord experience with immersive visuals and effects. These plugins are built for **Vencord**, a Discord client mod, and offer unique features like rain effects, cosmic stardust, and dynamic backgrounds. While these plugins aim to enhance your aesthetic experience, they are resource-intensive and may cause performance issues on some systems.
+Welcome to the **HabitatRain** and **Infinite** plugins, designed to transform your Discord experience with immersive visuals and effects. These plugins are built for **Vencord**, a Discord client mod, and offer unique features like rain effects, cosmic stardust, dynamic backgrounds, and now dynamic weather and mist effects. While these plugins aim to enhance your aesthetic experience, they are resource-intensive and may cause performance issues on some systems.
 
 ---
 
 ## 📜 Overview
 
-### HabitatRain
-- **Theme**: A cozy, rainy-day vibe with forest backdrops, rain effects, and optional lightning.
+### HabitatRain (v4.0.0)
+- **Theme**: A cozy, rainy-day vibe with forest backdrops, rain effects, dynamic weather, mist, and optional lightning.
 - **Features**:
-  - Adjustable rain intensity, speed, angle, and size.
-  - Forest video background for an immersive outdoorsy feel.
-  - Optional rain sound and thunder effects.
+  - **Dynamic Weather Simulation**: Realistic weather cycles (drizzle, heavy rain, downpour, thunderstorms, clearing) with smooth transitions and wind direction changes.
+  - **Mist Effect**: Animated, multi-layered mist for extra atmosphere. Mist can be enabled/disabled and its density adjusted.
+  - **Rain Effects**: Adjustable rain intensity, speed, angle, and size.
+  - **Forest Video Background**: For an immersive outdoorsy feel.
+  - **Rain Sound**: Optional rain sound with custom URL support.
+  - **Thunder Effects**: Optional thunder and lightning for dramatic vibes.
+  - **Robust Error Handling**: Automatic recovery from video or WebGL errors.
+  - **Settings Save Without Applying When Inactive**: Settings changes are always saved, but only applied when the plugin is active.
 
-### Infinite
-- **Theme**: A cosmic, galactic aesthetic with stardust and celestial animations.
+### Infinite (v1.3.1)
+- **Theme**: A cosmic, galactic aesthetic with stardust, animated mist, and celestial animations.
 - **Features**:
   - Stardust particles with customizable drift animations.
   - Galaxy background for a space-like atmosphere.
   - Rotating sun and moon synced to your system clock.
+  - Mist effect for extra cosmic atmosphere.
+  - Settings save without applying when inactive.
 
 ---
 
