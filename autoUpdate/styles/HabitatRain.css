@@ -38,7 +38,7 @@
 
 .theme-dark {
   /* Backdrop image (unchanged, but you can replace it if desired). */
-  --dplus-backdrop: url(https://phrogshabitat.github.io/forestShit.mp4);
+  --dplus-backdrop: url(Nun);
 
   /* Accent color: Green hue for highlights and accents. */
   --dplus-accent-color-hue: 120;
@@ -56,11 +56,12 @@
   --dplus-background-color-saturation-amount: 0.5;
   --dplus-background-color-lightness-amount: 0.5;
   --dplus-background-color-alpha: 0.5; /* bro I spent forever trying to figure out why things has a dark tint :skull: */
+  
 }
 
 .theme-light {
   /* Backdrop image (unchanged). */
-  --dplus-backdrop: url(https://phrogshabitat.github.io/forestShit.mp4);
+  --dplus-backdrop: url(Nun);
 
   /* Accent color: Green for light theme. */
   --dplus-accent-color-hue: 120;
@@ -109,10 +110,10 @@
 
   /* Added variables for chat input and UI consistency */
   --dplus-scrollbar-width: 16px;
-  --dplus-bgc-chatmsg: rgba(10, 20, 10, 0.85); /* Chat message background */
+  --dplus-bgc-chatmsg: rgba(16, 36, 18, 0.808); /* Chat message background */
   --dplus-bgc-ui-card: rgba(20, 30, 20, 0.7);  /* UI card background */
-  --dplus-bgc-chatmsg-hover: rgba(20, 40, 20, 0.95); /* Message hover/selected background */
-  --dplus-bgc-ui-base: rgba(15, 25, 15, 0.85);       /* Base UI background for themed containers */
+  --dplus-bgc-chatmsg-hover: rgba(16, 36, 18, 0.87); /* Message hover/selected background */
+  --dplus-bgc-ui-base: rgba(19, 32, 19, 0.829);       /* Base UI background for themed containers */
   --dplus-anim-long: 0.3s;
   --dplus-anim-short: 0.15s;
 }
@@ -172,6 +173,19 @@
 	padding: 0;
 	flex-direction: column-reverse;
 }
+/* Profiles that have an Avatar Decoration, we have to treat differently
+   since the decoration assumes the avatar is square */
+.avatarDecoration_c19a55 {
+	transform: translateY(-10px) scale(1.04);
+}
+.message__5126c:has(.avatarDecoration_c19a55){
+	.avatar_c19a55{
+		border-radius: 50px !important;
+		transform: scale(1.08) translateY(-10px);
+	}
+}
+
+
 .visual-refresh-chat-input .channelBottomBarArea_f75fb0 {margin: 0;}
 .visual-refresh .channelTextArea_f75fb0 {background-color: var(--dplus-bgc-chatmsg);}
 .sansAttachButton__74017 {
@@ -379,13 +393,13 @@ border-radius: 0 0 var(--dplus-radius-ui) var(--dplus-radius-ui)!important;
  /*- DM Sidebar -*/
 .scrollerBase__99f8c, .privateChannels__35e86, .sidebarList_c48ade,.sidebarListRounded_c48ade {
   background-color: rgba(0, 0, 0, 0.3) !important;
-  backdrop-filter: blur(12px) opacity(0.4) saturate(25);
-  -webkit-backdrop-filter: blur(12px) opacity(0.4) saturate(25);
+  backdrop-filter: blur(10px) opacity(0.7) saturate(25);
+  -webkit-backdrop-filter: blur(10px) opacity(0.3) saturate(25);
 }
 
-.panels_c48ade {
+[class*="panels"], [class*="card"] {
   background-color: rgba(0, 0, 0, 0.692) !important;
-  backdrop-filter: blur(7px) opacity(0.3) saturate(25);
+  backdrop-filter: blur(7px) opacity(0.7) saturate(25);
   -webkit-backdrop-filter: blur(7px) opacity(0.3) saturate(25);
   border: rgb(3, 94, 7) 1px solid;
 }
@@ -439,3 +453,109 @@ margin-right: 0;
 	width: 100%;
 	left: 0; bottom: 0;
 }
+
+.standardSidebarView__23e6b {
+	bottom: -50px;
+}
+
+.form_f75fb0, .visual-refresh .form_f75fb0 {
+	border-top: none;
+	box-shadow: none;
+	margin: 0;
+	margin-right: var(--dplus-scrollbar-width);
+	display: flex;
+	padding: 0;
+	flex-direction: column-reverse;
+}
+.visual-refresh-chat-input .channelBottomBarArea_f75fb0 {margin: 0;}
+.visual-refresh .channelTextArea_f75fb0 {background-color: var(--dplus-bgc-chatmsg);}
+.sansAttachButton__74017 {
+	padding: calc(2px + (var(--dplus-spacing-ui) / 2));
+	padding-top: calc(2px + (var(--dplus-spacing-ui) / 8));
+	padding-bottom: calc(2px + (var(--dplus-spacing-ui) / 8));
+}
+.channelTextArea__74017 {
+	padding-top: 24px;
+	background-color: transparent;
+	margin-top: var(--dplus-spacing-app) !important;
+	margin: var(--dplus-spacing-ui) 0 0;
+}
+:root:not(.reduce-motion) .channelBottomBarArea_f75fb0:not(:has(~ .base_b88801)) .channelTextArea_f75fb0 { 
+	padding-top: 0px;
+	transition-property: padding-top;
+	transition-duration: var(--dplus-anim-long);
+	transition-delay: var(--dplus-anim-long);
+}
+:root:not(.reduce-motion) .channelTextAreaContainer_d0696b:has(~ .base_b88801) { /*undone*/
+	padding-top: 24px;
+	transition-property: padding-top;
+	transition-duration: var(--dplus-anim-short);
+}
+.wrapper__44df5 {
+	height: 12px;
+	background: var(--dplus-bgc-ui-card);
+	margin-top: var(--dplus-spacing-app);
+	margin-bottom: 0;
+	border-radius: var(--dplus-radius-ui);
+}
+.base_b88801 {
+	top: calc(var(--dplus-spacing-app) / 2);
+}
+.typingDots_b88801, .cooldownWrapper_b21699 {
+	background: var(--dplus-bgc-ui-card);
+	border-radius: var(--dplus-radius-ui);
+	padding-right: 0.25rem;
+}
+.scrollableContainer__74017 {
+	overflow-y: auto;
+	background-color: var(--dplus-bgc-chatmsg);
+	border-radius: var(--dplus-radius-ui);
+}
+.form_f75fb0:before, .form_f75fb0:after {
+	display: none;
+} /* Random gradient? Does this do anything? */
+.webkit__8d35a .buttons__74017 { 
+	margin-right: calc(var(--dplus-spacing-ui) - 6px);
+}
+.stackedBars__74017 + .scrollableContainer__74017 {
+	border-radius: 0 0 var(--dplus-radius-ui) var(--dplus-radius-ui);
+}
+.channelAppLauncher_e6e74f {
+  margin-bottom: calc(var(--dplus-spacing-ui) / 2);
+  & .button_e6e74f {background-color: var(--dplus-bgc-chatmsg);}	
+}
+
+/* :is(.messageListItem__5126c, .quotedChatMessage__5126c) .message__5126c { 
+	background-color: rgba(0, 0, 0, 0.692) !important;
+  backdrop-filter: blur(7px) opacity(0.7) saturate(25);
+  -webkit-backdrop-filter: blur(7px) opacity(0.3) saturate(25);
+} */
+
+/* .messageListItem__5126c .groupStart__5126c, .flash__03436.groupStart__5126c, .quotedChatMessage__5126c .groupStart__5126c {
+	border-radius: var(--dplus-radius-ui) var(--dplus-radius-ui) 0 0;
+	margin-top: 0;
+	position: relative;
+	z-index: 9999999;
+	background-color: rgba(0, 0, 0, 0.692) !important;
+}
+:is(.messageListItem__5126c, .quotedChatMessage__5126c) .message__5126c { 
+	background: var(--dplus-bgc-chatmsg);
+	background-color: rgba(0, 0, 0, 0.692) !important;
+	padding-top: 0px;
+	padding-bottom: 10px;
+	-webkit-background-composite: padding;
+
+}
+
+:not(.divider__5126c) + .messageListItem__5126c:has(.groupStart__5126c), .messageListItem__5126c + .flash__03436:has(.avatar_c19a55) {
+	margin-top: var(--group-spacing);
+	position: relative;
+	z-index: 9999999;
+} */
+
+.scrollerSpacer__36d07 { height: 0; }
+.wrapper_c19a55.cozy_c19a55.zalgo_c19a55[aria-labelledby*="upload"] {
+	background-color: rgba(0, 0, 0, 0.692) !important;
+}
+.cozy_c19a55 .repliedMessage_c19a55 {max-width: 100%;}
+
