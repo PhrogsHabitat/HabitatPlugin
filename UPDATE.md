@@ -1,6 +1,19 @@
 # 🌟 Habitat Rain - Update Log
 
-## Version 4.0.0 (Latest)
+## Version 4.3.1 (Latest)
+
+- **Removed Avatar Shadow**: Removed the DropShadow from the stylesheet. 
+
+## Version 4.3.0
+
+- **Auto Updating Styles**: Implemented some features that allow all StyleSheets and Assets to auto update themselves independently of the user.
+- **Fixed Settings Page**: Made some changes to make the settings page easier to understand for some users.
+- **Loading Screen**: Implemented a new ScreenWipe transition when enabling/disabling the plugin, to allow the new Step-By-Step system to load the plugin seamlessly.
+- **Plugin Structure**: Plugin structure has been updated to allow a Step-By-Step activation.
+
+- This update focuses mainly on improving User Experience and decreasing the lag or stuttering seen by some users.
+
+## Version 4.0.0
 
 ### 🚀 Major Update
 - **Dynamic Weather Simulation**: Realistic weather cycles, including drizzle, heavy rain, downpour, thunderstorms, and clearing, with smooth transitions and wind direction changes.

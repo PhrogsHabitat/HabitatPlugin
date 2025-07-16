@@ -6,7 +6,7 @@ Welcome to the **HabitatRain** and **Infinite** plugins, designed to transform y
 
 ## 📜 Overview
 
-### HabitatRain (v4.0.0)
+### HabitatRain (v4.3.1)
 - **Theme**: A cozy, rainy-day vibe with forest backdrops, rain effects, dynamic weather, mist, and optional lightning.
 - **Features**:
   - **Dynamic Weather Simulation**: Realistic weather cycles (drizzle, heavy rain, downpour, thunderstorms, clearing) with smooth transitions and wind direction changes.
@@ -18,7 +18,7 @@ Welcome to the **HabitatRain** and **Infinite** plugins, designed to transform y
   - **Robust Error Handling**: Automatic recovery from video or WebGL errors.
   - **Settings Save Without Applying When Inactive**: Settings changes are always saved, but only applied when the plugin is active.
 
-### Infinite (v1.3.1)
+### Infinite (v2.0.0)
 - **Theme**: A cosmic, galactic aesthetic with stardust, animated mist, and celestial animations.
 - **Features**:
   - Stardust particles with customizable drift animations.
