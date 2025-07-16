@@ -126,11 +126,11 @@
  */
 .avatar_c19a55 {
   transform: translateY(-10px);
-  -webkit-filter: drop-shadow(-10px 10px 3px rgb(0, 0, 0));
+  /* -webkit-filter: drop-shadow(-10px 10px 3px rgb(0, 0, 0)); */
 }
 .avatar_c19a55:hover {
 	transform: translateY(-10px) scale(0.95);
-	-webkit-filter: drop-shadow(-6px 6px 2px rgb(0, 0, 0)) !important;
+	/* -webkit-filter: drop-shadow(-6px 6px 2px rgb(0, 0, 0)) !important; */
 }
 
 /* Sets the bottom section of the USERINFO pannel to invisible
