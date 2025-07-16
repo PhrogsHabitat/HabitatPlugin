@@ -1,29 +1,29 @@
 # 🌧️ Habitat Rain - Bring the Outdoors to Discord 🌲✨
 
-Hey, Discord adventurers! Feeling like your server vibes are a little too... indoorsy? **Habitat Rain** is here to drench your Discord in cozy, rainy-day feels. Think soft rain, forest backdrops, dynamic weather, and even a little lightning to keep things ✨ *spicy* ✨. Let’s turn your server into a peaceful retreat. 🌿
+Hey, Discord adventurers! Feeling like your server vibes are a little too... indoorsy? **Habitat Rain** is here to drench your Discord in cozy, rainy-day feels. Think soft rain, forest backdrops, and even a little lightning to keep things ✨ *spicy* ✨. Let’s turn your server into a peaceful retreat. 🌿
 
 ---
 
 ## 🌦️ What’s Habitat Rain?
 
-Habitat Rain is a **Vencord plugin** that adds a soothing rain effect to your Discord. Whether you’re into soft drizzles or heavy storms, this plugin has you covered. Oh, and did we mention the forest background and dynamic weather? It’s like camping, but without the bugs. 🏕️
+Habitat Rain is a **Vencord plugin** that adds a soothing rain effect to your Discord. Whether you’re into soft drizzles or heavy storms, this plugin has you covered. Oh, and did we mention the forest background? It’s like camping, but without the bugs. 🏕️
 
 ---
 
 ## 🔧 How to Use
 
 1. **Install the Plugin**:  
-   Drop the `HabitatRain` plugin into your Vencord setup.
+   Drop the `HabitatRain` plugin into your Vencord setup. (You know the drill, fam. 👀)
 
 2. **Customize Your Rain**:  
    Head to the plugin settings and tweak it to your liking:
-   - **Dynamic Weather**: Enable realistic weather cycles that change over time.
    - **Rain Presets**: Choose between `Normal`, `Slow`, `Heavy`, or `Downpour`.
-   - **Rain Intensity, Speed, Angle, Scale**: Fine-tune the rain effect.
-   - **Rain Sound**: Toggle the soothing rain audio and set a custom sound URL.
+   - **Rain Intensity**: Adjust how dense the rain appears.
+   - **Rain Speed**: Control how fast the raindrops fall.
+   - **Rain Angle**: Make it fall straight down or at an angle.
+   - **Rain Sound**: Toggle the soothing rain audio on/off.
    - **Forest Background**: Enable/disable the forest video backdrop.
    - **Thunder Effects**: Add lightning and thunder for dramatic vibes.
-   - **Mist Effect**: Enable/disable and adjust the density of animated mist.
 
 3. **Enjoy the Chill Vibes**:  
    Sit back, relax, and let Habitat Rain turn your Discord into a cozy sanctuary. 🌧️
@@ -32,15 +32,11 @@ Habitat Rain is a **Vencord plugin** that adds a soothing rain effect to your Di
 
 ## ⚙️ Features
 
-- **Dynamic Weather Simulation**: Realistic weather cycles with smooth transitions and wind direction changes.
-- **Mist Effect**: Animated, multi-layered mist for extra atmosphere.
-- **Rain Effects**: Customize the intensity, speed, angle, and scale of the rain. 🌧️
+- **Rain Effects**: Customize the intensity, speed, and angle of the rain. 🌧️
 - **Forest Background**: A looping forest video that makes you feel like you’re in the great outdoors. 🌲
-- **Rain Sound**: Soothing rain audio with custom URL support. 🎵
+- **Rain Sound**: Soothing rain audio to complete the vibe. 🎵
 - **Thunder Effects**: Random flashes of lightning for that stormy drama. ⚡
 - **Smooth Animations**: Everything flows seamlessly, just like nature intended. 🌊
-- **Robust Error Handling**: Automatic recovery from video or WebGL errors.
-- **Settings Save Without Applying When Inactive**: Changes in settings are saved but not applied unless the plugin is active.
 
 ---
 
@@ -64,12 +60,6 @@ Habitat Rain is a **Vencord plugin** that adds a soothing rain effect to your Di
 - **Rain Sound Not Playing?**  
   Ensure your volume isn’t muted and the sound URL is valid. 🎧
 
-- **Mist Not Appearing?**  
-  Make sure the mist effect is enabled and your system supports it.
-
-- **Plugin Not Responding to Settings?**  
-  Settings changes are only applied when the plugin is active.
-
 ---
 
 ## 🧑‍🚀 Credits
@@ -77,7 +67,7 @@ Habitat Rain is a **Vencord plugin** that adds a soothing rain effect to your Di
 - **Plugin Creator**: [PhrogsHabitat](https://github.com/PhrogsHabitat)  
   > *Rainy vibes brought to you by the frog overlord. 🐸*
 
-- **Version**: 3.0.3  
+- **Version**: 3.0.2  
   > *Stay updated, bb.*  
 
 ---

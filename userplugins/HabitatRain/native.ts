@@ -8,3 +8,4 @@ import { CspPolicies } from "@main/csp";
 
 // Allow media from phrogshabitat.github.io for this plugin
 CspPolicies["https://phrogshabitat.github.io"] = ["media-src"];
+CspPolicies["https://plusinsta.github.io"] = ["media-src"];
