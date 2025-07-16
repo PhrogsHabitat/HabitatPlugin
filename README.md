@@ -41,10 +41,10 @@ Both plugins are **resource-intensive** and may cause lag, especially on lower-e
 
 ## 🚀 Installation
 
-1. Download the plugins from the [GitHub repository](https://github.com/PhrogsHabitat/HabitatRain).
-2. Add the plugins to your **Vencord plugins folder**.
-3. Restart Discord and enable the plugins in your settings.
-4. Customize the settings to your preference.
+1. Download the plugin from the [GitHub repo](https://github.com/PhrogsHabitat/HabitatRain).
+2. Drop the 'api' folder, and the 'userplugins' folder into your Vencord build folder.
+3. Restart Discord and enable the plugin in your settings.
+4. Customize it to your heart’s content.
 
 ---
 

@@ -67,7 +67,7 @@ Habitat Rain is a **Vencord plugin** that adds a soothing rain effect to your Di
 - **Plugin Creator**: [PhrogsHabitat](https://github.com/PhrogsHabitat)  
   > *Rainy vibes brought to you by the frog overlord. 🐸*
 
-- **Version**: 3.0.2  
+- **Version**: 4.3.1  
   > *Stay updated, bb.*  
 
 ---
