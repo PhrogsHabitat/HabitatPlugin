@@ -69,17 +69,21 @@ export const settings = definePluginSettings({
     mistIntensity: {
         type: OptionType.SLIDER,
         description: "Adjust mist density and visibility",
-        default: 0.7,
-        markers: [0, 0.25, 0.5, 0.75, 1],
-        onChange: () => {
-            import("../components/MistEffect").then(m => m.update());
-        },
+        default: (defaultConfigs.Heavy.intensity * 0.7),
+        min: 0,
+        max: 3, // Lowered max for more realistic mist
+        step: 0.01,
+        markers: [0, 0.25, 0.5, 1, 1.5, 2, 2.5, 3],
+        onChange: () => { /* see MistEffect for dynamic link to rain */ },
     },
     rainVolume: {
         type: OptionType.SLIDER,
         description: "Adjust rain sound volume",
         default: defaultConfigs.Heavy.volume,
-        markers: [0, 25, 50, 75, 100],
+        min: 0,
+        max: 500,
+        step: 1,
+        markers: [0, 10, 25, 50, 75, 100, 200, 300, 400, 500],
         onChange: () => {
             import("../components/ThunderEffect").then(m => m.updateVolume());
         },
@@ -88,39 +92,30 @@ export const settings = definePluginSettings({
         type: OptionType.SLIDER,
         description: "Adjust rain density",
         default: defaultConfigs.Heavy.intensity,
-        markers: [0, 0.25, 0.5, 0.75, 1],
+        min: 0,
+        max: 5,
+        step: 0.01,
+        markers: [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1, 2, 3, 4, 5],
         onChange: () => {
             import("../components/WebGLRainEffect").then(m => m.update());
         },
     },
     rainScale: {
-        type: OptionType.SELECT,
+        type: OptionType.NUMBER,
         description: "Adjust raindrop size",
-        options: [
-            { label: "Tiny Drops", value: 0.5 },
-            { label: "Small Drops", value: 1.0 },
-            { label: "Medium Drops", value: 1.5 },
-            { label: "Large Drops", value: 2.0 }
-        ],
-        default: 1.0, // Changed to number
-        onChange: (value: number) => {
-            safeSet(() => {
-                settings.store.rainScale = value;
-                import("../components/WebGLRainEffect").then(m => m.update());
-            }, value);
-        },
+        min: 0.05,
+        max: 3.0, // Lowered max for less extreme scaling
+        step: 0.01,
+        onChange: (value: number) => { /* see WebGLRainEffect for dynamic link to mist */ },
     },
     rainAngle: {
-        type: OptionType.SELECT,
+        type: OptionType.SLIDER,
         description: "Adjust rain direction",
-        options: [
-            { label: "Left (↖)", value: -45 },
-            { label: "Slight Left (←)", value: -15 },
-            { label: "Straight (↓)", value: 0 },
-            { label: "Slight Right (→)", value: 15 },
-            { label: "Right (↗)", value: 45 }
-        ],
-        default: 0, // Changed to number
+        default: 0,
+        min: -180,
+        max: 180,
+        step: 1,
+        markers: [-180, -90, -45, -15, 0, 15, 45, 90, 180],
         onChange: (value: number) => {
             safeSet(() => {
                 settings.store.rainAngle = value;
@@ -129,15 +124,13 @@ export const settings = definePluginSettings({
         },
     },
     rainSpeed: {
-        type: OptionType.SELECT,
+        type: OptionType.SLIDER,
         description: "Adjust rain speed",
-        options: [
-            { label: "Slow Motion", value: 0.5 },
-            { label: "Gentle", value: 1.0 },
-            { label: "Moderate", value: 1.5 },
-            { label: "Heavy", value: 2.0 }
-        ],
-        default: 1.0, // Changed to number
+        default: 1.0,
+        min: 0.01,
+        max: 10.0,
+        step: 0.01,
+        markers: [0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
         onChange: (value: number) => {
             safeSet(() => {
                 settings.store.rainSpeed = value;
@@ -203,6 +196,3 @@ export const settings = definePluginSettings({
         }
     }
 });
-
-// Ensure pluginName is set for Vencord settings compatibility
-settings.pluginName = "HabitatRain";

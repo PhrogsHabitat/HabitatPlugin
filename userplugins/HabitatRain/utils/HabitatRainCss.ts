@@ -1,3 +1,10 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2025 Vendicated and contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+const habitatRainCss = `
 /**
  * @name Habitat+
  * @author PlusInsta, PhrogsHabitat
@@ -17,6 +24,7 @@
 
 /* I've commented most of these values so you can change them yourself. If you're having trouble, or you want to do more than what these values allow for, a volunteer might be able to help you in my server. */
 
+
 /*
 	<- MESSAGES (In currently selected channel) ->
 	.scrollerBase_d125d2
@@ -32,6 +40,7 @@
 
 	<- SERVERLIST ->
 	.itemsContainer_ef3116
+
  */
 
 .theme-dark {
@@ -704,3 +713,7 @@ margin-right: 0;
     from { opacity: 1; transform: translateY(-50%); }
     to { opacity: 0; transform: translateY(-10px) translateY(-50%); }
 }
+
+`;
+
+export default habitatRainCss;

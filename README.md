@@ -6,7 +6,8 @@ Welcome to the **HabitatRain** and **Infinite** plugins, designed to transform y
 
 ## 📜 Overview
 
-### HabitatRain (v4.3.1)
+### HabitatRain (v4.3.5)
+
 - **Theme**: A cozy, rainy-day vibe with forest backdrops, rain effects, dynamic weather, mist, and optional lightning.
 - **Features**:
   - **Dynamic Weather Simulation**: Realistic weather cycles (drizzle, heavy rain, downpour, thunderstorms, clearing) with smooth transitions and wind direction changes.
@@ -17,8 +18,10 @@ Welcome to the **HabitatRain** and **Infinite** plugins, designed to transform y
   - **Thunder Effects**: Optional thunder and lightning for dramatic vibes.
   - **Robust Error Handling**: Automatic recovery from video or WebGL errors.
   - **Settings Save Without Applying When Inactive**: Settings changes are always saved, but only applied when the plugin is active.
+  - **Quick Actions Menu**: Quickly adjust your rain settings using the new Quick Actions menu, and see your changes as their made.
 
-### Infinite (v2.0.0)
+### Infinite (v2.0.1)
+
 - **Theme**: A cosmic, galactic aesthetic with stardust, animated mist, and celestial animations.
 - **Features**:
   - Stardust particles with customizable drift animations.
@@ -32,6 +35,7 @@ Welcome to the **HabitatRain** and **Infinite** plugins, designed to transform y
 ## ⚠️ Performance Notice
 
 Both plugins are **resource-intensive** and may cause lag, especially on lower-end systems. If you experience significant performance issues:
+
 1. **Adjust Settings**: Lower the particle count, disable animations, or turn off backgrounds.
 2. **Report Issues**: If the lag is severe and cannot be ignored, please report it in our [support server](https://discord.gg/5k6K3Vuf8y).  
    - Include the **exact settings** you were using when the lag occurred.
@@ -51,15 +55,19 @@ Both plugins are **resource-intensive** and may cause lag, especially on lower-e
 ## ❓ FAQ
 
 ### Why is my Discord lagging?
+
 - Both plugins use animations and effects that can be demanding on your system. Try reducing the settings or disabling certain features.
 
 ### Can I use both plugins at the same time?
+
 - Yes, but this may increase the likelihood of performance issues. Use with caution.
 
 ### How do I disable a plugin?
+
 - Go to your Vencord settings, find the plugin, and toggle it off.
 
 ### Can I customize the effects?
+
 - Absolutely! Both plugins come with extensive settings to adjust visuals, animations, and sounds.
 
 ---
@@ -67,6 +75,7 @@ Both plugins are **resource-intensive** and may cause lag, especially on lower-e
 ## 🛑 Reporting Issues
 
 If you encounter bugs, crashes, or severe lag:
+
 1. Join our [support server](https://discord.gg/5k6K3Vuf8y).
 2. Provide the following details:
    - Plugin name (**HabitatRain** or **Infinite**).

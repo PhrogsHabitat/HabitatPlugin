@@ -7,7 +7,7 @@
 let habitatStyle: HTMLStyleElement | null = null;
 
 import { ASSETS } from "./Constants";
-import habitatRainCss from "./HabitatRainCss";
+import habitatRainCss from "./SpectralPlaceCss";
 // @ts-ignore: This will be replaced at build time if needed
 
 const HABITAT_CSS_URL = ASSETS.THEME_CSS;

@@ -5,6 +5,7 @@
  */
 
 // General asset URLs for reuse across plugins
+
 export const ASSETS = {
     // Audio: Rain
     RAIN_SOFT: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/sounds/RAINSoft.mp3",
@@ -25,6 +26,10 @@ export const ASSETS = {
     MIST_FRONT: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/MISTFront.png",
     MIST_MID: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/MISTMid.png",
     MIST_BACK: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/MISTBack.png",
+
+    // Icon for Quick Actions
+    QA_BG: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/QAIcon.png",
+    QA_RAIN_VOLUME: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/QAIconRainVolume.png",
 
     // Styles
     THEME_CSS: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/styles/HabitatRain.css"

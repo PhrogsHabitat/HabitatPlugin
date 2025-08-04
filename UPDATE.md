@@ -1,18 +1,30 @@
 # 🌟 Habitat Rain - Update Log
 
-## Version 4.3.1 (Latest)
+## Version 4.3.5 (Latest)
 
-- **Removed Avatar Shadow**: Removed the DropShadow from the stylesheet. 
-- **Auto Updating Styles**: Implemented some features that allow all StyleSheets and Assets to auto update themselves independently of the user.
-- **Fixed Settings Page**: Made some changes to make the settings page easier to understand for some users.
-- **Loading Screen**: Implemented a new ScreenWipe transition when enabling/disabling the plugin, to allow the new Step-By-Step system to load the plugin seamlessly.
-- **Plugin Structure**: Plugin structure has been updated to allow a Step-By-Step activation.
+- **Quick-Actions Menu**: Added a feature that allows users to quickly tweak their rain settings from anywhere on discord.
+
+- **Settings Menu**: Made a change to the settings menu that switches the "SLIDER" optionType to "BIGINT", to allow users to set specific values.
+- **Avatar Spacing**: Fixed an issue that caused user profiles to overlap the corresponding message text when the user enters a voice call.
+- **Color Scheme**: Fixed an issue that sometimes caused the color scheme to appear darker than intended.
+- **Backdrop Filter**: Fixed an issue that resulted in the backdrop filter on certain elements causing severe lag.
+- **Rain Shader**: Made a change to the rain shader to make rain streaks that are farther away from the screen, more visible.
 
 - *This update focuses mainly on improving User Experience and decreasing the lag or stuttering seen by some users.*
 
 ---
 
+# 🚀 Infinite - Update Log
+
+## Version 2.0.1 (Latest)
+
+- **Color Error**: Fixed an issue that caused Discord to crash when using an extremely specific color. (Your kidding, right?)
+- **Sun Crash Event**: Fixed an issue that sometimes caused Discord to freeze due to the audio that played when the Sun crashed into the Moon.
+
+---
+
 ### ⚠️ Known Issues
+
 - **Performance**: The plugin is resource-intensive and may cause lag on lower-end systems. If you experience severe lag:
   - Lower the rain intensity or disable the forest background.
   - Report the issue in our [support server](https://discord.gg/5k6K3Vuf8y) with your settings and system specs.
@@ -22,6 +34,7 @@
 ## Reporting Issues
 
 If you encounter bugs, crashes, or severe lag:
+
 1. Join our [support server](https://discord.gg/5k6K3Vuf8y).
 2. Provide the following details:
    - Plugin name (**HabitatRain**).

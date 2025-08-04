@@ -9,17 +9,19 @@ import definePlugin from "@utils/types";
 import * as DynamicWeather from "./components/DynamicWeather";
 import * as ForestBackground from "./components/ForestBackground";
 import { hideLoadingOverlay, showLoadingOverlay } from "./components/LoadingOverlay";
+import { QuickActions } from "./components/QuickActions";
 import * as ThunderEffect from "./components/ThunderEffect";
 import { injectHabitatStyles } from "./utils/domUtils";
 import { settings } from "./utils/settingsStore";
 
 let isPluginActive = false;
+let quickActions: QuickActions | null = null;
 
 export default definePlugin({
     name: "Habitat Rain",
     description: "A cozy plugin that makes you feel at home in the rain.",
     authors: [{ name: "PhrogsHabitat", id: 788145360429252610n }],
-    version: "4.3.1",
+    version: "4.3.5",
     settings,
     async start() {
         isPluginActive = true;
@@ -34,7 +36,10 @@ export default definePlugin({
         if (settings.store.enableMist) import("./components/MistEffect").then(m => m.setup());
         if (settings.store.dynamicWeather) DynamicWeather.start();
 
-        // 3. Hide loading overlay with delay
+        // 3. Add quick actions UI
+        quickActions = new QuickActions();
+
+        // 4. Hide loading overlay with delay
         setTimeout(hideLoadingOverlay, 500);
     },
     stop() {
@@ -44,5 +49,11 @@ export default definePlugin({
         DynamicWeather.stop();
         ForestBackground.remove();
         import("./components/MistEffect").then(m => m.remove());
+
+        // Clean up quick actions
+        if (quickActions) {
+            quickActions.remove();
+            quickActions = null;
+        }
     },
 });

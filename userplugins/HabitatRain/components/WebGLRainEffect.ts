@@ -17,6 +17,7 @@ let animationFrameId: number | null = null;
 let startTime: number = 0;
 let isContextLost = false;
 let lastFrameTime = performance.now();
+let isStaticTextureSet = false; // Track if static texture has been set
 
 const defaultRainColor = [0.2, 0.3, 1.0]; // Bluish rain color
 
@@ -153,20 +154,26 @@ const fragmentShaderSource = `
         vec3 add = vec3(0.0);
         float rainSum = 0.0;
 
-        const int numLayers = 2;
-        float scales[2];
+        const int numLayers = 4;
+        float scales[4];
         scales[0] = 1.0;
         scales[1] = 1.8;
+        scales[2] = 4.6;
+        scales[3] = 9.8;
 
         for (int i = 0; i < numLayers; i++) {
             float scale = scales[i];
             float r = rainDist(wpos * scale / uScale + 500.0 * float(i), scale, intensity);
             if (r < 0.0) {
                 float v = (1.0 - exp(r * 5.0)) / scale * 2.0;
+                // For background layers (higher scale), clamp v to a minimum for visibility
+                if (i >= 2) {
+                    v = max(v, 0.08); // Only for farthest two layers
+                }
                 wpos.x += v * 10.0 * uScale;
                 wpos.y -= v * 2.0 * uScale;
-                add += vec3(0.1, 0.15, 0.2) * v;
-                rainSum += (1.0 - rainSum) * 0.75;
+                add += vec3(0.1, 0.15, 0.2) * v; // original color
+                rainSum += (1.0 - rainSum) * 0.75; // original blend
             }
         }
 
@@ -174,7 +181,7 @@ const fragmentShaderSource = `
         vec3 color = texture2D(uTexture, sampleUV).rgb;
 
         color += add;
-        color = mix(color, uRainColor, 0.1 * rainSum);
+        color = mix(color, uRainColor, 0.1 * rainSum); // original blend
 
         gl_FragColor = vec4(color, 1.0);
     }
@@ -244,8 +251,24 @@ export function setup() {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-        const placeholder = new Uint8Array([255, 0, 255, 255]);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, placeholder);
+        // Set initial texture based on background type
+        if (forestBackground) {
+            if (forestBackground instanceof HTMLImageElement) {
+                // Static image - set texture immediately
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, forestBackground);
+                isStaticTextureSet = true;
+            } else {
+                // Video - use placeholder until frames are available
+                const placeholder = new Uint8Array([255, 0, 255, 255]);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, placeholder);
+                isStaticTextureSet = false;
+            }
+        } else {
+            // No background - use placeholder
+            const placeholder = new Uint8Array([255, 0, 255, 255]);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, placeholder);
+            isStaticTextureSet = false;
+        }
 
         const positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -318,11 +341,23 @@ function animate() {
     if (!gl || !program || !rainCanvas) return;
 
     try {
-        // Only update texture if video is ready and has data
-        if (forestBackground && forestBackground.readyState >= HTMLMediaElement.HAVE_METADATA) {
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, forestBackground);
+        // Update texture based on background type
+        if (forestBackground) {
+            if (forestBackground instanceof HTMLVideoElement) {
+                // Video - update texture each frame if ready
+                if (forestBackground.readyState >= HTMLMediaElement.HAVE_METADATA) {
+                    gl.bindTexture(gl.TEXTURE_2D, texture);
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, forestBackground);
+                }
+            } else if (!isStaticTextureSet) {
+                // Static image - only set once
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, forestBackground);
+                isStaticTextureSet = true;
+            }
         }
+
+        // Update uniforms
         const textureUniform = gl.getUniformLocation(program, "uTexture");
         const timeUniform = gl.getUniformLocation(program, "uTime");
         const intensityUniform = gl.getUniformLocation(program, "uIntensity");
@@ -336,6 +371,7 @@ function animate() {
         if (angleUniform) gl.uniform1f(angleUniform, Number(settings.store.rainAngle));
         if (speedUniform) gl.uniform1f(speedUniform, Number(settings.store.rainSpeed));
 
+        // Render
         gl.viewport(0, 0, rainCanvas.width, rainCanvas.height);
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);

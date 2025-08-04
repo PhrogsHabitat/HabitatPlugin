@@ -37,14 +37,13 @@ Habitat Rain is a **Vencord plugin** that adds a soothing rain effect to your Di
 - **Rain Sound**: Soothing rain audio to complete the vibe. 🎵
 - **Thunder Effects**: Random flashes of lightning for that stormy drama. ⚡
 - **Smooth Animations**: Everything flows seamlessly, just like nature intended. 🌊
-- **Soothing Mist**: Mist roams freely across your screen.
 
 ---
 
 ## 🚀 Installation
 
 1. Download the plugin from the [GitHub repo](https://github.com/PhrogsHabitat/HabitatRain).
-2. Add it to your Vencord userplugins folder.
+2. Add it to your Vencord plugins folder.
 3. Restart Discord and enable the plugin in your settings.
 4. Customize it to your heart’s content. 💖
 

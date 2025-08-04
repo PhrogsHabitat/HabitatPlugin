@@ -1,3 +1,10 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2025 Vendicated and contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+const habitatRainCss = `
 /**
  * @name Habitat+
  * @author PlusInsta, PhrogsHabitat
@@ -17,6 +24,7 @@
 
 /* I've commented most of these values so you can change them yourself. If you're having trouble, or you want to do more than what these values allow for, a volunteer might be able to help you in my server. */
 
+
 /*
 	<- MESSAGES (In currently selected channel) ->
 	.scrollerBase_d125d2
@@ -32,6 +40,7 @@
 
 	<- SERVERLIST ->
 	.itemsContainer_ef3116
+
  */
 
 .theme-dark {
@@ -561,146 +570,6 @@ margin-right: 0;
 }
 .cozy_c19a55 .repliedMessage_c19a55 {max-width: 100%;}
 
-/* Habitat Rain Quick Actions CSS */
+`;
 
-.habitat-quick-actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: auto;
-}
-
-.habitat-main-bubble {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--background-primary);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 20px;
-    cursor: move;
-    z-index: 100;
-    transition: transform 0.3s ease, background 0.2s ease;
-}
-
-.habitat-main-bubble:hover {
-    transform: scale(1.1);
-    background: var(--background-secondary);
-}
-
-.habitat-main-bubble.expanded {
-    transform: scale(1.2);
-}
-
-.habitat-main-bubble.dragging {
-    transform: scale(1.2);
-    opacity: 0.8;
-    cursor: grabbing;
-}
-
-.habitat-actions-container {
-    position: absolute;
-    pointer-events: none;
-}
-
-.habitat-action-bubble {
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--background-primary);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-    cursor: pointer;
-    transform: translate(0, 0);
-    pointer-events: auto;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-    transition:
-        transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        opacity 0.3s ease,
-        background 0.2s ease;
-}
-
-.habitat-action-control {
-    display: none;
-    position: absolute;
-    left: 40px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--background-secondary);
-    border-radius: 8px;
-    padding: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    width: 160px;
-    z-index: 5;
-}
-
-.habitat-action-label {
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: var(--header-primary);
-}
-
-.habitat-action-control input[type="range"] {
-    width: 100%;
-}
-
-.habitat-toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 20px;
-}
-
-.habitat-toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.habitat-toggle-switch .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--background-modifier-accent);
-    transition: .4s;
-    border-radius: 20px;
-}
-
-.habitat-toggle-switch .slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 2px;
-    bottom: 2px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-.habitat-toggle-switch input:checked + .slider {
-    background-color: var(--brand-experiment);
-}
-
-.habitat-toggle-switch input:checked + .slider:before {
-    transform: translateX(20px);
-}
-
-@keyframes habitat-fade-in {
-    from { opacity: 0; transform: translateY(-10px) translateY(-50%); }
-    to { opacity: 1; transform: translateY(-50%); }
-}
-
-@keyframes habitat-fade-out {
-    from { opacity: 1; transform: translateY(-50%); }
-    to { opacity: 0; transform: translateY(-10px) translateY(-50%); }
-}
+export default habitatRainCss;
