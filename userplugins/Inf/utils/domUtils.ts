@@ -4,35 +4,43 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { COLORS, CSS_VARS } from "./Constants";
-import infiniteCss from "./InfiniteCss";
-
 let infiniteStyle: HTMLStyleElement | null = null;
+
+import { ASSETS, COLORS, CSS_VARS } from "./Constants";
+// @ts-ignore: This will be replaced at build time if needed
+
+const INFINITE_CSS_URL = ASSETS.THEME_CSS;
 
 /**
  * Injects the Infinite plugin CSS styles into the document
  */
 export async function injectInfiniteStyles(): Promise<void> {
-    if (infiniteStyle) {
-        console.warn("Infinite styles already injected");
-        return;
+    // Prevent duplicate injection
+    if (infiniteStyle) return;
+
+    // Inject core colors as CSS variables first
+    injectCoreColorsAsCSSVars();
+
+    // Use the esbuild define directly (replaced at build time)
+
+    // Helper to fetch and inject a style
+    async function fetchAndInject(url: string, id: string): Promise<HTMLStyleElement | null> {
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`Failed to fetch CSS from ${url}`);
+            const css = await resp.text();
+            const style = document.createElement("style");
+            style.id = id;
+            style.textContent = css;
+            document.head.appendChild(style);
+            return style;
+        } catch (e) {
+            console.error(`Error loading CSS from ${url}:`, e);
+            return null;
+        }
     }
 
-    try {
-        // Inject core colors as CSS variables
-        injectCoreColorsAsCSSVars();
-
-        // Create and inject the main stylesheet
-        infiniteStyle = document.createElement("style");
-        infiniteStyle.id = "infinite-plugin-styles";
-        infiniteStyle.textContent = infiniteCss;
-        document.head.appendChild(infiniteStyle);
-
-        console.log("Infinite styles injected successfully");
-    } catch (error) {
-        console.error("Failed to inject Infinite styles:", error);
-        throw error;
-    }
+    infiniteStyle = await fetchAndInject(INFINITE_CSS_URL, "stylesINFINITE");
 }
 
 /**
@@ -42,7 +50,6 @@ export function removeInfiniteStyles(): void {
     if (infiniteStyle?.parentNode) {
         infiniteStyle.parentNode.removeChild(infiniteStyle);
         infiniteStyle = null;
-        console.log("Infinite styles removed");
     }
 
     // Remove CSS variables

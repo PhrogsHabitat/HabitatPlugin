@@ -32,6 +32,9 @@ export const ASSETS = {
     MIST_FRONT: "https://phrogshabitat.github.io/MISTFront.png",
     MIST_MID: "https://phrogshabitat.github.io/MISTMid.png",
     MIST_BACK: "https://phrogshabitat.github.io/MISTBack.png",
+
+    // Styles
+    THEME_CSS: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/styles/HabitatGalaxy.css"
 } as const;
 
 // CSS variable names for theming
