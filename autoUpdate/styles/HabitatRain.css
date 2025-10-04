@@ -471,6 +471,9 @@ margin-right: 0;
 	flex-direction: column-reverse;
 }
 
+.content_d125d2{
+	opacity: 0%;
+}
 .visual-refresh-chat-input .channelBottomBarArea_f75fb0 {margin: 0;}
 .visual-refresh .channelTextArea_f75fb0 {background-color: var(--dplus-bgc-chatmsg);}
 .sansAttachButton__74017 {
