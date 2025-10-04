@@ -410,6 +410,7 @@ border-radius: 0 0 var(--dplus-radius-ui) var(--dplus-radius-ui)!important;
 .privateChannels__35e86 .channel__972a0 {
 	margin-left: var(--dplus-spacing-ui);
 	margin-right: var(--dplus-spacing-ui);
+
 }
 .closeButton__972a0 {
 	display: block;
@@ -468,6 +469,10 @@ margin-right: 0;
 	display: flex;
 	padding: 0;
 	flex-direction: column-reverse;
+}
+
+.content_d125d2{
+	opacity: 0%;
 }
 .visual-refresh-chat-input .channelBottomBarArea_f75fb0 {margin: 0;}
 .visual-refresh .channelTextArea_f75fb0 {background-color: var(--dplus-bgc-chatmsg);}
