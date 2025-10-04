@@ -393,7 +393,7 @@ border-radius: 0 0 var(--dplus-radius-ui) var(--dplus-radius-ui)!important;
 .visual-refresh .sidebar_c48ade:after{display: none;}
 
  /*- DM Sidebar -*/
-.scrollerBase__99f8c, .privateChannels__35e86, .sidebarList_c48ade,.sidebarListRounded_c48ade, .content_d125d2 {
+.scrollerBase__99f8c, .privateChannels__35e86, .sidebarList_c48ade,.sidebarListRounded_c48ade {
   background-color: rgba(0, 0, 0, 0.18) !important;
   backdrop-filter: blur(10px) opacity(0.5) saturate(25);
   -webkit-backdrop-filter: blur(10px) opacity(0.2) saturate(25);
