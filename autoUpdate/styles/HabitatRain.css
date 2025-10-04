@@ -581,18 +581,6 @@ margin-right: 0;
 }
 .cozy_c19a55 .repliedMessage_c19a55 {max-width: 100%;}
 
-/* The weird background thingy for the DM sideBar that was added in one of the Vencord updates :moyai: */
-.scroller__99e7c.thin_d125d2.scrollerBase_d125d2.fade_d125d2
-{
-	background-color: rgba(0, 0, 0, 0.0) !important;
-}
-
-.scroller__629e4 .thin_d125d2 .scrollerBase_d125d2 .fade_d125d2
-{
-	background-color: rgba(0, 0, 0, 0.692) !important;
-}
-
-
 /* Habitat Rain Quick Actions CSS */
 
 .habitat-quick-actions {
