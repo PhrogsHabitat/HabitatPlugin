@@ -18,7 +18,7 @@ const VIDEO_EXTENSIONS = [".mp4", ".webm", ".mov", ".ogg"];
 const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"];
 
 function getAssetType(url: string) {
-    const lowerUrl = url.toLowerCase();
+    const lowerUrl = (url || "").toLowerCase();
     if (VIDEO_EXTENSIONS.some(ext => lowerUrl.includes(ext))) return "video";
     if (IMAGE_EXTENSIONS.some(ext => lowerUrl.includes(ext))) return "image";
     return "unknown";
@@ -28,89 +28,126 @@ export async function setup() {
     if (forestBackground) return;
     showLoadingOverlay();
 
-    const assetType = getAssetType(ASSETS.THEME_BACKGROUND);
+    const themeBg = ASSETS?.THEME_BACKGROUND ?? "";
+    if (!themeBg) {
+        console.warn("ForestBackground: THEME_BACKGROUND asset missing, aborting setup");
+        hideLoadingOverlay();
+        return;
+    }
+    if (!document?.body) {
+        console.warn("ForestBackground: document.body not available, aborting setup");
+        hideLoadingOverlay();
+        return;
+    }
+
+    const assetType = getAssetType(themeBg);
 
     if (assetType === "video") {
         // Video background setup
         forestBackground = document.createElement("video");
-        forestBackground.src = ASSETS.THEME_BACKGROUND;
-        forestBackground.autoplay = true;
-        forestBackground.loop = true;
-        forestBackground.muted = true;
-        forestBackground.crossOrigin = "anonymous";
-        forestBackground.playsInline = true;
-        forestBackground.preload = "auto";
+        const video = forestBackground as HTMLVideoElement;
+        video.src = themeBg;
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = true;
+        video.crossOrigin = "anonymous";
+        video.playsInline = true;
+        video.preload = "auto";
 
-        forestBackground.onerror = () => {
+        video.onerror = () => {
             console.error("Video failed to load. Retrying...");
             setTimeout(() => {
-                if (forestBackground && "src" in forestBackground) {
-                    forestBackground.src = ASSETS.THEME_BACKGROUND + "?" + Date.now();
-                }
+                try {
+                    video.src = themeBg + "?" + Date.now();
+                } catch (e) { /* ignore */ }
             }, 2000);
         };
 
         // Wait for video to load
-        await new Promise<void>((resolve, reject) => {
-            const onCanPlay = () => {
-                forestBackground?.removeEventListener("canplay", onCanPlay);
-                resolve();
-            };
+        try {
+            await new Promise<void>((resolve, reject) => {
+                const onCanPlay = () => {
+                    video.removeEventListener("canplay", onCanPlay);
+                    resolve();
+                };
 
-            const onError = (e: Event) => {
-                forestBackground?.removeEventListener("error", onError);
-                reject(e);
-            };
+                const onError = (e: Event) => {
+                    video.removeEventListener("error", onError);
+                    reject(e);
+                };
 
-            forestBackground.addEventListener("canplay", onCanPlay);
-            forestBackground.addEventListener("error", onError);
-            forestBackground.load();
-        });
+                video.addEventListener("canplay", onCanPlay);
+                video.addEventListener("error", onError);
+                video.load();
+            });
+        } catch (e) {
+            console.error("Video load promise rejected:", e);
+        }
 
         try {
-            await (forestBackground as HTMLVideoElement).play();
+            await video.play();
         } catch (e) {
             console.error("Video play error:", e);
         }
     } else {
         // Static image background setup
         forestBackground = document.createElement("img");
-        forestBackground.src = ASSETS.THEME_BACKGROUND;
-        forestBackground.crossOrigin = "anonymous";
+        const img = forestBackground as HTMLImageElement;
+        img.src = themeBg;
+        img.crossOrigin = "anonymous";
 
         // Wait for image to load
-        await new Promise<void>((resolve, reject) => {
-            const onLoad = () => {
-                forestBackground?.removeEventListener("load", onLoad);
-                resolve();
-            };
+        try {
+            await new Promise<void>((resolve, reject) => {
+                const onLoad = () => {
+                    img.removeEventListener("load", onLoad);
+                    resolve();
+                };
 
-            const onError = (e: Event) => {
-                forestBackground?.removeEventListener("error", onError);
-                reject(e);
-            };
+                const onError = (e: Event) => {
+                    img.removeEventListener("error", onError);
+                    reject(e);
+                };
 
-            forestBackground.addEventListener("load", onLoad);
-            forestBackground.addEventListener("error", onError);
-        });
+                img.addEventListener("load", onLoad);
+                img.addEventListener("error", onError);
+            });
+        } catch (e) {
+            console.error("Image load promise rejected:", e);
+        }
     }
 
     // Common styles for both video and image
-    Object.assign(forestBackground.style, {
-        position: "fixed",
-        top: "0",
-        left: "0",
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-        zIndex: "-2"
-    });
-
-    document.body.appendChild(forestBackground);
+    if (forestBackground && forestBackground.style) {
+        Object.assign(forestBackground.style, {
+            position: "fixed",
+            top: "0",
+            left: "0",
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: "-2"
+        });
+        try {
+            document.body.appendChild(forestBackground);
+        } catch (e) {
+            console.error("Failed to append forestBackground to document.body:", e);
+        }
+    }
 
     // Setup effects
-    WebGLRainEffect.setup();
-    if (settings.store.enableMist) MistEffect.setup();
+    try {
+        WebGLRainEffect.setup();
+    } catch (e) {
+        console.error("WebGLRainEffect.setup error:", e);
+    }
+    if (settings && (settings as any).store && (settings as any).store.enableMist) {
+        try {
+            MistEffect.setup();
+        } catch (e) {
+            console.error("MistEffect.setup error:", e);
+        }
+    }
     setupDiscordReloadDetection();
 
     hideLoadingOverlay();
@@ -139,17 +176,20 @@ export function remove() {
 function setupDiscordReloadDetection() {
     if (appMountObserver) appMountObserver.disconnect();
 
+    if (!document?.body) {
+        // nothing to observe in non-browser-like environment
+        return;
+    }
+
     appMountObserver = new MutationObserver(() => {
         if (!document.getElementById("app-mount")) {
             showLoadingOverlay();
             remove();
             reloadTimeout = setTimeout(() => {
-                if (settings.store.showForestBackground) setup();
+                if (settings && (settings as any).store && (settings as any).store.showForestBackground) setup();
             }, 4000);
         }
     });
 
-    if (document.body) {
-        appMountObserver.observe(document.body, { childList: true, subtree: true });
-    }
+    appMountObserver.observe(document.body, { childList: true, subtree: true });
 }

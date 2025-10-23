@@ -5,7 +5,6 @@
  */
 
 import { definePluginSettings, OptionType } from "@api/Settings";
-import { React } from "@webpack/common";
 
 import { defaultConfigs } from "./configs";
 
@@ -25,10 +24,14 @@ export const settings = definePluginSettings({
         description: "Enable dynamic weather simulation with realistic patterns",
         default: false,
         onChange: (value: boolean) => {
-            if (value) {
-                import("../components/DynamicWeather").then(m => m.start());
-            } else {
-                import("../components/DynamicWeather").then(m => m.stop());
+            try {
+                if (value) {
+                    import("../components/DynamicWeather.js").then(m => m.start());
+                } else {
+                    import("../components/DynamicWeather.js").then(m => m.stop());
+                }
+            } catch (e) {
+                console.error("Error in dynamicWeather onChange:", e);
             }
         },
     },
@@ -43,7 +46,7 @@ export const settings = definePluginSettings({
         ],
         default: "Heavy",
         onChange: (preset: string) => {
-            import("../components/ThunderEffect").then(m => m.updatePresetSettings(preset));
+            import("../components/ThunderEffect.js").then(m => m.updatePresetSettings(preset));
         },
     },
     enableThunder: {
@@ -51,7 +54,7 @@ export const settings = definePluginSettings({
         description: "Enable lightning effects during rain",
         default: true,
         onChange: (value: boolean) => {
-            import("../components/ThunderEffect").then(m => value ? m.enableThunder() : m.disableThunder());
+            import("../components/ThunderEffect.js").then(m => value ? m.enableThunder() : m.disableThunder());
         },
     },
     enableMist: {
@@ -60,9 +63,9 @@ export const settings = definePluginSettings({
         default: true,
         onChange: (value: boolean) => {
             if (value) {
-                import("../components/MistEffect").then(m => m.setup());
+                import("../components/MistEffect.js").then(m => m.setup());
             } else {
-                import("../components/MistEffect").then(m => m.remove());
+                import("../components/MistEffect.js").then(m => m.remove());
             }
         },
     },
@@ -85,7 +88,7 @@ export const settings = definePluginSettings({
         step: 1,
         markers: [0, 10, 25, 50, 75, 100, 200, 300, 400, 500],
         onChange: () => {
-            import("../components/ThunderEffect").then(m => m.updateVolume());
+            import("../components/ThunderEffect.js").then(m => m.updateVolume());
         },
     },
     rainIntensity: {
@@ -97,11 +100,11 @@ export const settings = definePluginSettings({
         step: 0.01,
         markers: [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1, 2, 3, 4, 5],
         onChange: () => {
-            import("../components/WebGLRainEffect").then(m => m.update());
+            import("../components/WebGLRainEffect.js").then(m => m.update());
         },
     },
     rainScale: {
-        type: OptionType.NUMBER,
+        type: OptionType.BIGINT,
         description: "Adjust raindrop size",
         min: 0.05,
         max: 3.0, // Lowered max for less extreme scaling
@@ -119,7 +122,7 @@ export const settings = definePluginSettings({
         onChange: (value: number) => {
             safeSet(() => {
                 settings.store.rainAngle = value;
-                import("../components/WebGLRainEffect").then(m => m.update());
+                import("../components/WebGLRainEffect.js").then(m => m.update());
             }, value);
         },
     },
@@ -134,7 +137,7 @@ export const settings = definePluginSettings({
         onChange: (value: number) => {
             safeSet(() => {
                 settings.store.rainSpeed = value;
-                import("../components/WebGLRainEffect").then(m => m.update());
+                import("../components/WebGLRainEffect.js").then(m => m.update());
             }, value);
         },
     },
@@ -144,55 +147,10 @@ export const settings = definePluginSettings({
         default: true,
         onChange: (value: boolean) => {
             if (value) {
-                import("../components/ForestBackground").then(m => m.setup());
+                import("../components/ForestBackground.js").then(m => m.setup());
             } else {
-                import("../components/ForestBackground").then(m => m.remove());
+                import("../components/ForestBackground.js").then(m => m.remove());
             }
         },
     },
-    advancedSettings: {
-        type: OptionType.COMPONENT,
-        description: "Advanced Configuration",
-        component: function AdvancedSettingsComponent() {
-            // Use settings.store.resetWebGL to trigger reset
-            return (
-                <div style={{ padding: "10px", backgroundColor: "var(--background-secondary)" }}>
-                    <div style={{ marginBottom: "10px" }}>
-                        <h3 style={{ margin: 0 }}>Advanced Settings</h3>
-                        <p style={{ margin: 0, opacity: 0.7 }}>Configure technical aspects of the plugin</p>
-                    </div>
-                    <div>
-                        <button
-                            style={{
-                                background: "var(--button-background)",
-                                color: "var(--button-text)",
-                                border: "none",
-                                padding: "5px 10px",
-                                borderRadius: "4px",
-                                cursor: "pointer"
-                            }}
-                            onClick={() => {
-                                settings.store.resetWebGL = true;
-                            }}
-                        >
-                            Reset WebGL Context
-                        </button>
-                    </div>
-                </div>
-            );
-        }
-    },
-    resetWebGL: {
-        type: OptionType.BOOLEAN,
-        description: "Internal: triggers WebGL context reset",
-        default: false,
-        hidden: true,
-        onChange: (value: boolean) => {
-            if (value) {
-                import("../components/WebGLRainEffect").then(m => m.reset());
-                // Reset the flag so it can be triggered again
-                setTimeout(() => { settings.store.resetWebGL = false; }, 100);
-            }
-        }
-    }
 });

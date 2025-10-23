@@ -8,6 +8,7 @@ import definePlugin from "@utils/types";
 
 import * as DynamicWeather from "./components/DynamicWeather";
 import * as ForestBackground from "./components/ForestBackground";
+import { lightingSystem } from "./components/LightingSystem";
 import { hideLoadingOverlay, showLoadingOverlay } from "./components/LoadingOverlay";
 import { QuickActions } from "./components/QuickActions";
 import * as ThunderEffect from "./components/ThunderEffect";
@@ -18,42 +19,55 @@ let isPluginActive = false;
 let quickActions: QuickActions | null = null;
 
 export default definePlugin({
-    name: "Habitat Rain",
+    name: "Habitat",
     description: "A cozy plugin that makes you feel at home in the rain.",
     authors: [{ name: "PhrogsHabitat", id: 788145360429252610n }],
     version: "4.3.5",
     settings,
     async start() {
-        isPluginActive = true;
-        showLoadingOverlay();
+        try {
+            isPluginActive = true;
+            showLoadingOverlay();
 
-        // 1. Inject CSS styles first
-        await injectHabitatStyles();
+            // 1. Inject CSS styles first
+            await injectHabitatStyles();
 
-        // 2. Initialize components
-        if (settings.store.showForestBackground) await ForestBackground.setup();
-        ThunderEffect.start(settings.store.preset || "Heavy");
-        if (settings.store.enableMist) import("./components/MistEffect").then(m => m.setup());
-        if (settings.store.dynamicWeather) DynamicWeather.start();
+            // 2. Initialize components
+            if (settings.store.showForestBackground) await ForestBackground.setup();
+            ThunderEffect.start(settings.store.preset || "Heavy");
+            if (settings.store.enableMist) import("./components/MistEffect.js").then(m => m.setup());
+            if (settings.store.dynamicWeather) DynamicWeather.start();
 
-        // 3. Add quick actions UI
-        quickActions = new QuickActions();
+            // Note: Lighting system is automatically initialized when WebGL rain effect starts
 
-        // 4. Hide loading overlay with delay
-        setTimeout(hideLoadingOverlay, 500);
+            // 3. Add quick actions UI
+            quickActions = new QuickActions();
+
+            // 4. Hide loading overlay with delay
+            setTimeout(hideLoadingOverlay, 500);
+        } catch (e) {
+            console.error("Error during Habitat plugin start:", e);
+        }
     },
     stop() {
-        isPluginActive = false;
-        hideLoadingOverlay();
-        ThunderEffect.stop();
-        DynamicWeather.stop();
-        ForestBackground.remove();
-        import("./components/MistEffect").then(m => m.remove());
+        try {
+            isPluginActive = false;
+            hideLoadingOverlay();
+            ThunderEffect.stop();
+            DynamicWeather.stop();
+            ForestBackground.remove();
+            import("./components/MistEffect.js").then(m => m.remove());
 
-        // Clean up quick actions
-        if (quickActions) {
-            quickActions.remove();
-            quickActions = null;
+            // Clean up lighting system
+            lightingSystem.clearLights();
+
+            // Clean up quick actions
+            if (quickActions) {
+                quickActions.remove();
+                quickActions = null;
+            }
+        } catch (e) {
+            console.error("Error during Habitat plugin stop:", e);
         }
     },
 });

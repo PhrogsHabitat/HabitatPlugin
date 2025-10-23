@@ -24,7 +24,6 @@ const habitatRainCss = `
 
 /* I've commented most of these values so you can change them yourself. If you're having trouble, or you want to do more than what these values allow for, a volunteer might be able to help you in my server. */
 
-
 /*
 	<- MESSAGES (In currently selected channel) ->
 	.scrollerBase_d125d2
@@ -40,7 +39,6 @@ const habitatRainCss = `
 
 	<- SERVERLIST ->
 	.itemsContainer_ef3116
-
  */
 
 .theme-dark {
@@ -419,6 +417,7 @@ border-radius: 0 0 var(--dplus-radius-ui) var(--dplus-radius-ui)!important;
 .privateChannels__35e86 .channel__972a0 {
 	margin-left: var(--dplus-spacing-ui);
 	margin-right: var(--dplus-spacing-ui);
+
 }
 .closeButton__972a0 {
 	display: block;
@@ -478,6 +477,7 @@ margin-right: 0;
 	padding: 0;
 	flex-direction: column-reverse;
 }
+
 .visual-refresh-chat-input .channelBottomBarArea_f75fb0 {margin: 0;}
 .visual-refresh .channelTextArea_f75fb0 {background-color: var(--dplus-bgc-chatmsg);}
 .sansAttachButton__74017 {
@@ -569,6 +569,18 @@ margin-right: 0;
 	background-color: rgba(0, 0, 0, 0.692) !important;
 }
 .cozy_c19a55 .repliedMessage_c19a55 {max-width: 100%;}
+
+/* The weird background thingy for the DM sideBar that was added in one of the Vencord updates :moyai: */
+.scroller__99e7c.thin_d125d2.scrollerBase_d125d2.fade_d125d2
+{
+	background-color: rgba(0, 0, 0, 0.0) !important;
+}
+
+.scroller__629e4 .thin_d125d2 .scrollerBase_d125d2 .fade_d125d2
+{
+	background-color: rgba(0, 0, 0, 0.692) !important;
+}
+
 
 /* Habitat Rain Quick Actions CSS */
 
@@ -713,7 +725,6 @@ margin-right: 0;
     from { opacity: 1; transform: translateY(-50%); }
     to { opacity: 0; transform: translateY(-10px) translateY(-50%); }
 }
-
 `;
 
 export default habitatRainCss;

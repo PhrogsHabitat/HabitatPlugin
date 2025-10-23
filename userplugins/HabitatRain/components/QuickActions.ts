@@ -30,7 +30,7 @@ export class QuickActions {
     private clickTimer: number | null = null;
     private potentialClick = false;
     private snapThreshold = 50;
-    private snapPoints: Array<{ x: number, y: number }> = [];
+    private snapPoints: Array<{ x: number, y: number; }> = [];
 
     private quickActions: QuickAction[] = [
         {
@@ -44,7 +44,7 @@ export class QuickActions {
             getValue: () => settings.store.rainVolume,
             onChange: value => {
                 settings.store.rainVolume = value;
-                import("./ThunderEffect").then(m => m.updateVolume());
+                import("./ThunderEffect.js").then(m => m.updateVolume());
             }
         },
         {
@@ -58,7 +58,7 @@ export class QuickActions {
             getValue: () => settings.store.rainIntensity,
             onChange: value => {
                 settings.store.rainIntensity = value;
-                import("./WebGLRainEffect").then(m => m.update());
+                import("./WebGLRainEffect.js").then(m => m.update());
             }
         },
         {
@@ -72,7 +72,7 @@ export class QuickActions {
             getValue: () => settings.store.mistIntensity,
             onChange: value => {
                 settings.store.mistIntensity = value;
-                import("./MistEffect").then(m => m.update());
+                import("./MistEffect.js").then(m => m.update());
             }
         },
         {
@@ -83,7 +83,7 @@ export class QuickActions {
             getValue: () => settings.store.enableThunder,
             onChange: value => {
                 settings.store.enableThunder = value;
-                import("./ThunderEffect").then(m =>
+                import("./ThunderEffect.js").then(m =>
                     value ? m.enableThunder() : m.disableThunder()
                 );
             }
@@ -96,7 +96,7 @@ export class QuickActions {
             getValue: () => settings.store.showForestBackground,
             onChange: value => {
                 settings.store.showForestBackground = value;
-                import("./ForestBackground").then(m =>
+                import("./ForestBackground.js").then(m =>
                     value ? m.setup() : m.remove()
                 );
             }
@@ -426,7 +426,7 @@ export class QuickActions {
 
     private snapToClosestPoint() {
         let minDist = Infinity;
-        let closestPoint: { x: number; y: number } | null = null;
+        let closestPoint: { x: number; y: number; } | null = null;
 
         for (const point of this.snapPoints) {
             const dx = this.position.x - point.x;

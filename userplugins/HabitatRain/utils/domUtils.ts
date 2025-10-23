@@ -4,28 +4,39 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+// Define the compile-time boolean symbol to be replaced by the bundler.
+declare const IS_REDIRECT_CSS: boolean;
+
 let habitatStyle: HTMLStyleElement | null = null;
 
 import { ASSETS } from "./Constants";
-import habitatRainCss from "./HabitatRainCss";
-// @ts-ignore: This will be replaced at build time if needed
+// Note: DO NOT static-import HabitatRainCss here — import it dynamically only when needed.
+// import habitatRainCss from "./HabitatRainCss";
 
 const HABITAT_CSS_URL = ASSETS.THEME_CSS;
 
 export async function injectHabitatStyles() {
-    // Prevent duplicate injection
     if (habitatStyle) return;
 
-    // Use the esbuild define directly (replaced at build time)
-    // @ts-expect-error: IS_REDIRECT_CSS is injected at build time
-    if (IS_REDIRECT_CSS && typeof habitatRainCss === "string") {
-        // Use local CSS string from HabitatRainCss.ts
-        const style = document.createElement("style");
-        style.id = "stylesPHROGSHABITAT";
-        style.textContent = habitatRainCss;
-        document.head.appendChild(style);
-        habitatStyle = style;
-        return;
+    // If build-time flag is true, dynamically import the local CSS module and inject it.
+    if (typeof IS_REDIRECT_CSS !== "undefined" && IS_REDIRECT_CSS === true) {
+        try {
+            const mod = await import("./HabitatRainCss");
+            const habitatRainCss = mod?.default ?? (mod as any).habitatRainCss ?? null;
+            if (typeof habitatRainCss === "string") {
+                const style = document.createElement("style");
+                style.id = "stylesPHROGSHABITAT";
+                style.textContent = habitatRainCss;
+                document.head.appendChild(style);
+                habitatStyle = style;
+                return;
+            } else {
+                console.warn("redirect CSS requested but HabitatRainCss did not export a string.");
+            }
+        } catch (e) {
+            console.error("Failed to load local HabitatRainCss:", e);
+            // Fall through to fetch remote CSS if dynamic import fails
+        }
     }
 
     // Helper to fetch and inject a style

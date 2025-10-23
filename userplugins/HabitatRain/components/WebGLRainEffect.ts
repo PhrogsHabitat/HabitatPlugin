@@ -4,22 +4,31 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { ASSETS } from "../utils/Constants";
 import { settings } from "../utils/settingsStore";
 import { forestBackground } from "./ForestBackground";
+import { lightingSystem } from "./LightingSystem";
+
 const MAX_RETRIES = 3;
 let contextLostCount = 0;
 
 let rainCanvas: HTMLCanvasElement | null = null;
+
 let gl: WebGLRenderingContext | null = null;
 let program: WebGLProgram | null = null;
 let texture: WebGLTexture | null = null;
+let rainMapTexture: WebGLTexture | null = null;
+let lightMapTexture: WebGLTexture | null = null;
+let puddleMapTexture: WebGLTexture | null = null;
 let animationFrameId: number | null = null;
 let startTime: number = 0;
 let isContextLost = false;
 let lastFrameTime = performance.now();
-let isStaticTextureSet = false; // Track if static texture has been set
+let isStaticTextureSet = false;
 
-const defaultRainColor = [0.2, 0.3, 1.0]; // Bluish rain color
+// Light management is now handled by LightingSystem
+
+const defaultRainColor = [0.66, 0.71, 0.78]; // #a8adb5 from FNF
 
 const vertexShaderSource = `
     attribute vec2 aPosition;
@@ -34,6 +43,9 @@ const fragmentShaderSource = `
     precision mediump float;
     varying vec2 vUv;
     uniform sampler2D uTexture;
+    uniform sampler2D uRainMap;
+    uniform sampler2D uLightMap;
+    uniform sampler2D uPuddleMap;
     uniform float uTime;
     uniform float uIntensity;
     uniform float uScale;
@@ -41,6 +53,19 @@ const fragmentShaderSource = `
     uniform float uSpeed;
     uniform vec2 uResolution;
     uniform vec3 uRainColor;
+    uniform int uNumLights;
+
+    // Light structure for dynamic point lights
+    struct Light {
+        vec2 position;
+        vec3 color;
+        float radius;
+    };
+
+    const int MAX_LIGHTS = 8;
+    uniform vec2 uLightPositions[MAX_LIGHTS];
+    uniform vec3 uLightColors[MAX_LIGHTS];
+    uniform float uLightRadii[MAX_LIGHTS];
 
     vec3 mod289(vec3 x) {
         return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -107,15 +132,16 @@ const fragmentShaderSource = `
         vec3 p2 = vec3(a1.xy, h.z);
         vec3 p3 = vec3(a1.zw, h.w);
 
-        vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+        vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
         p0 *= norm.x;
         p1 *= norm.y;
         p2 *= norm.z;
         p3 *= norm.w;
 
-        vec4 m = max(0.5 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
+        vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
         m = m * m;
-        return 105.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
+        return 105.0 * dot(m * m, vec4(dot(p0,x0), dot(p1,x1),
+                                    dot(p2,x2), dot(p3,x3)));
     }
 
     float rand(vec2 a) {
@@ -124,6 +150,25 @@ const fragmentShaderSource = `
 
     float ease(float t) {
         return t * t * (3.0 - 2.0 * t);
+    }
+
+    // Calculate dynamic point light illumination
+    vec3 lightUp(vec2 worldPos) {
+        vec3 result = vec3(0.0);
+        for (int i = 0; i < MAX_LIGHTS; i++) {
+            if (i >= uNumLights) {
+                break;
+            }
+            vec2 lightPos = uLightPositions[i];
+            vec3 lightColor = uLightColors[i];
+            float lightRadius = uLightRadii[i];
+
+            float distance = length(lightPos - worldPos);
+            float attenuation = max(0.0, 1.0 - distance / lightRadius);
+            // Apply enhanced light intensity for better visibility
+            result += ease(attenuation) * lightColor;
+        }
+        return result;
     }
 
     float rainDist(vec2 p, float scale, float intensity) {
@@ -147,47 +192,172 @@ const fragmentShaderSource = `
         return empty ? 1.0 : res;
     }
 
+    // Puddle effect functions
+    float rippleHeight(vec2 p, vec2 pos, float age, float size, float modSize, float thickness) {
+        float strength = 1.0 - exp(-(1.0 - age) * 1.0);
+        float h = max(0.0, 1.0 - abs(length(mod(p - pos + modSize * 0.5, vec2(modSize)) - modSize * 0.5) - size * age) / thickness);
+        h = h * h * (3.0 - 2.0 * h); // smoothstep
+        return h * strength;
+    }
+
+    vec2 puddleDisplace(vec2 p, float intensity) {
+        vec2 res = vec2(0);
+
+        const int numRipples = 10;
+        const float rippleLife = 2.0;
+        const float rippleSize = 80.0;
+        const float rippleMod = rippleSize * 2.0;
+
+        for (int i = 0; i < numRipples; i++) {
+            float shift = float(i) / float(numRipples);
+            float rippleNumber = uTime / rippleLife + shift;
+            float rippleId = floor(rippleNumber);
+            rippleId = rand(vec2(rippleId, i));
+            float x = rand(vec2(rippleId, rippleId + 1.0)) * rippleMod;
+            float y = rand(vec2(rippleId + 2.0, rippleId + 3.0)) * rippleMod;
+            vec2 pos = vec2(x, y);
+            float age = fract(rippleNumber);
+            float thickness = 6.0;
+            float eps = 1.0;
+            vec2 pScale = vec2(1, 0.8);
+            float hc = rippleHeight(p * pScale, pos, age, rippleSize, rippleMod, thickness);
+            float hx = rippleHeight((p + vec2(eps, 0)) * pScale, pos, age, rippleSize, rippleMod, thickness);
+            float hy = rippleHeight((p + vec2(0, eps)) * pScale, pos, age, rippleSize, rippleMod, thickness);
+            vec2 normal = (vec2(hx, hy) - hc) / eps;
+            res += normal * 15.0;
+        }
+        return res * intensity;
+    }
+
     void main() {
         vec2 wpos = vUv * uResolution;
         float intensity = uIntensity;
 
+        // Sample all maps
+        vec4 rainMap = texture2D(uRainMap, vUv);
+        vec4 lightMap = texture2D(uLightMap, vUv);
+        vec4 puddleMap = texture2D(uPuddleMap, vUv);
+
+        // Rain mask is ONLY from rain map - determines WHERE rain can fall
+        float rainMask = rainMap.g;
+        // Puddle mask from puddle map
+        float puddleMask = puddleMap.r;
+
         vec3 add = vec3(0.0);
         float rainSum = 0.0;
 
-        const int numLayers = 4;
-        float scales[4];
-        scales[0] = 1.0;
-        scales[1] = 1.8;
-        scales[2] = 4.6;
-        scales[3] = 9.8;
+        // Only calculate rain if we're in a rain area
+        if (rainMask > 0.01) {
+            const int numLayers = 7;
+            float scales[7];
+            scales[0] = 1.0;
+            scales[1] = 1.6;
+            scales[2] = 2.2;
+            scales[3] = 2.8;
+            scales[4] = 3.4;
+            scales[5] = 4.0;
+            scales[6] = 4.8;
 
-        for (int i = 0; i < numLayers; i++) {
-            float scale = scales[i];
-            float r = rainDist(wpos * scale / uScale + 500.0 * float(i), scale, intensity);
-            if (r < 0.0) {
-                float v = (1.0 - exp(r * 5.0)) / scale * 2.0;
-                // For background layers (higher scale), clamp v to a minimum for visibility
-                if (i >= 2) {
-                    v = max(v, 0.08); // Only for farthest two layers
+            for (int i = 0; i < numLayers; i++) {
+                float scale = scales[i];
+                float r = rainDist(wpos * scale / uScale + 500.0 * float(i), scale, intensity);
+                if (r < 0.0) {
+                    float v = (1.0 - exp(r * 5.0)) / scale * 2.0;
+                    if (i >= 2) {
+                        v = max(v, 0.08);
+                        v *= 0.5;
+                    }
+                    wpos.x += v * 10.0 * uScale;
+                    wpos.y -= v * 2.0 * uScale;
+                    add += vec3(0.1, 0.15, 0.2) * v;
+                    rainSum += (1.0 - rainSum) * 0.75;
                 }
-                wpos.x += v * 10.0 * uScale;
-                wpos.y -= v * 2.0 * uScale;
-                add += vec3(0.1, 0.15, 0.2) * v; // original color
-                rainSum += (1.0 - rainSum) * 0.75; // original blend
             }
         }
 
         vec2 sampleUV = wpos / uResolution;
         vec3 color = texture2D(uTexture, sampleUV).rgb;
 
-        color += add;
-        color = mix(color, uRainColor, 0.1 * rainSum); // original blend
+        // Calculate dynamic point light illumination
+        vec3 dynamicLight = lightUp(wpos);
+
+        // Apply lighting to the background image
+        float ambientLevel = 0.3;
+        vec3 litBackground = color * (ambientLevel + dynamicLight * 0.8);
+        litBackground = min(litBackground, color + dynamicLight * 0.6);
+
+        // Apply base rain effect
+        vec3 rainEffect = add * rainMask;
+
+        // Apply dynamic lighting to rain
+        vec3 lightTintedRain = rainEffect;
+
+        if (rainSum > 0.0 && length(dynamicLight) > 0.0) {
+            vec3 tintedRainColor = uRainColor + (dynamicLight * 0.25);
+            lightTintedRain = rainEffect * tintedRainColor;
+            lightTintedRain += dynamicLight * rainSum * rainMask * 0.1;
+        }
+
+        // Combine lit background with rain effects
+        color = litBackground + lightTintedRain;
+
+        // Apply puddle effects where puddle mask is present
+        if (puddleMask > 0.1) {
+            // Apply puddle displacement
+            vec2 puddleUV = vUv;
+            vec2 displacement = puddleDisplace(wpos / 200.0, intensity * puddleMask) * 0.01;
+            puddleUV += displacement;
+
+            // Sample the texture with displacement for reflection effect
+            vec3 puddleColor = texture2D(uTexture, puddleUV).rgb;
+
+            // Apply puddle shader effect (convert to grayscale based on alpha-like effect)
+            float puddleIntensity = puddleMask * 0.7;
+            float gray = dot(puddleColor, vec3(0.299, 0.587, 0.114));
+            vec3 puddleEffect = mix(puddleColor, vec3(gray), puddleIntensity);
+
+            // Mix between original color and puddle effect based on puddle mask
+            color = mix(color, puddleEffect, puddleMask * 0.8);
+
+            // Add subtle ripples to the final color
+            color += displacement.y * 0.1 * puddleMask;
+        }
 
         gl_FragColor = vec4(color, 1.0);
     }
 `;
 
-export function setup() {
+// Helper function to load texture
+function loadTexture(url: string): Promise<WebGLTexture> {
+    return new Promise((resolve, reject) => {
+        if (!gl) {
+            reject(new Error("WebGL context not available"));
+            return;
+        }
+
+        const texture = gl.createTexture();
+        if (!texture) {
+            reject(new Error("Failed to create texture"));
+            return;
+        }
+
+        const image = new Image();
+        image.crossOrigin = "anonymous";
+        image.onload = () => {
+            gl!.bindTexture(gl!.TEXTURE_2D, texture);
+            gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.RGBA, gl!.RGBA, gl!.UNSIGNED_BYTE, image);
+            gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_WRAP_S, gl!.CLAMP_TO_EDGE);
+            gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_WRAP_T, gl!.CLAMP_TO_EDGE);
+            gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_MIN_FILTER, gl!.LINEAR);
+            gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_MAG_FILTER, gl!.LINEAR);
+            resolve(texture);
+        };
+        image.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+        image.src = url;
+    });
+}
+
+export async function setup() {
     cleanup();
     if (!isActive()) return;
 
@@ -244,6 +414,42 @@ export function setup() {
 
         gl.useProgram(program);
 
+        // Load all mapping textures including puddle map
+        try {
+            rainMapTexture = await loadTexture(ASSETS.RAIN_MAP);
+            lightMapTexture = await loadTexture(ASSETS.LIGHT_MAP);
+            puddleMapTexture = await loadTexture(ASSETS.PUDDLE_MAP); // Make sure this is defined in your Constants
+
+            // Initialize lighting system from lightmap
+            lightingSystem.clearLights();
+
+            try {
+                // Try to load lights from the lightmap PNG with refined settings
+                await lightingSystem.loadFromLightmap(ASSETS.LIGHT_MAP, {
+                    brightnessThreshold: 25,
+                    minRadius: 80,
+                    maxRadius: 400,
+                    radiusScale: 1.8,
+                    minDistance: 40
+                }, rainCanvas.width, rainCanvas.height);
+
+            } catch (lightmapError) {
+                console.warn("Failed to load lights from lightmap, using fallback:", lightmapError);
+
+                // Fallback to manual test light
+                lightingSystem.createLight(
+                    rainCanvas.width / 2,
+                    rainCanvas.height / 2,
+                    [1.0, 0.5, 0.8],
+                    300
+                );
+            }
+        } catch (e) {
+            console.error("Failed to load mapping textures:", e);
+            // Create a fallback puddle map if the asset fails to load
+            puddleMapTexture = createFallbackPuddleMap();
+        }
+
         texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -254,17 +460,14 @@ export function setup() {
         // Set initial texture based on background type
         if (forestBackground) {
             if (forestBackground instanceof HTMLImageElement) {
-                // Static image - set texture immediately
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, forestBackground);
                 isStaticTextureSet = true;
             } else {
-                // Video - use placeholder until frames are available
                 const placeholder = new Uint8Array([255, 0, 255, 255]);
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, placeholder);
                 isStaticTextureSet = false;
             }
         } else {
-            // No background - use placeholder
             const placeholder = new Uint8Array([255, 0, 255, 255]);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, placeholder);
             isStaticTextureSet = false;
@@ -281,7 +484,11 @@ export function setup() {
         gl.enableVertexAttribArray(positionAttribute);
         gl.vertexAttribPointer(positionAttribute, 2, gl.FLOAT, false, 0, 0);
 
+        // Set up uniforms including puddle map
         const textureUniform = gl.getUniformLocation(program, "uTexture");
+        const rainMapUniform = gl.getUniformLocation(program, "uRainMap");
+        const lightMapUniform = gl.getUniformLocation(program, "uLightMap");
+        const puddleMapUniform = gl.getUniformLocation(program, "uPuddleMap");
         const timeUniform = gl.getUniformLocation(program, "uTime");
         const intensityUniform = gl.getUniformLocation(program, "uIntensity");
         const scaleUniform = gl.getUniformLocation(program, "uScale");
@@ -291,12 +498,18 @@ export function setup() {
         const rainColorUniform = gl.getUniformLocation(program, "uRainColor");
 
         gl.uniform1i(textureUniform, 0);
+        gl.uniform1i(rainMapUniform, 1);
+        gl.uniform1i(lightMapUniform, 2);
+        gl.uniform1i(puddleMapUniform, 3); // Puddle map uses texture unit 3
         gl.uniform1f(intensityUniform, settings.store.rainIntensity);
         gl.uniform1f(scaleUniform, Number(settings.store.rainScale));
         gl.uniform1f(angleUniform, Number(settings.store.rainAngle));
         gl.uniform1f(speedUniform, Number(settings.store.rainSpeed));
         gl.uniform2f(resolutionUniform, rainCanvas.width, rainCanvas.height);
         gl.uniform3fv(rainColorUniform, defaultRainColor);
+
+        // Initialize light uniforms using the lighting system
+        lightingSystem.updateUniforms(gl, program);
 
         startTime = performance.now();
         animationFrameId = requestAnimationFrame(animate);
@@ -308,6 +521,50 @@ export function setup() {
     }
 }
 
+function createFallbackPuddleMap(): WebGLTexture {
+    if (!gl) throw new Error("WebGL context not available");
+
+    const texture = gl.createTexture();
+    if (!texture) throw new Error("Failed to create texture");
+
+    // Create a simple fallback puddle map with some puddles at the bottom
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext("2d");
+
+    if (ctx) {
+        // Clear to transparent
+        ctx.clearRect(0, 0, 512, 512);
+
+        // Draw some elliptical puddles at the bottom
+        ctx.fillStyle = "white";
+
+        // Large puddle in the middle bottom
+        ctx.beginPath();
+        ctx.ellipse(256, 450, 120, 60, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Smaller puddles on sides
+        ctx.beginPath();
+        ctx.ellipse(100, 470, 80, 40, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(400, 460, 90, 50, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    return texture;
+}
+
 export function cleanup() {
     if (animationFrameId) cancelAnimationFrame(animationFrameId);
     if (rainCanvas?.parentNode) rainCanvas.parentNode.removeChild(rainCanvas);
@@ -315,6 +572,9 @@ export function cleanup() {
     rainCanvas = null;
     program = null;
     texture = null;
+    rainMapTexture = null;
+    lightMapTexture = null;
+    puddleMapTexture = null;
     gl = null;
 }
 
@@ -326,12 +586,12 @@ export function handleResize() {
     if (rainCanvas) {
         rainCanvas.width = window.innerWidth;
         rainCanvas.height = window.innerHeight;
+    }
 
-        if (gl && program) {
-            const resolutionUniform = gl.getUniformLocation(program, "uResolution");
-            if (resolutionUniform) {
-                gl.uniform2f(resolutionUniform, rainCanvas.width, rainCanvas.height);
-            }
+    if (gl && program && rainCanvas) {
+        const resolutionUniform = gl.getUniformLocation(program, "uResolution");
+        if (resolutionUniform) {
+            gl.uniform2f(resolutionUniform, rainCanvas.width, rainCanvas.height);
         }
     }
 }
@@ -344,21 +604,31 @@ function animate() {
         // Update texture based on background type
         if (forestBackground) {
             if (forestBackground instanceof HTMLVideoElement) {
-                // Video - update texture each frame if ready
                 if (forestBackground.readyState >= HTMLMediaElement.HAVE_METADATA) {
                     gl.bindTexture(gl.TEXTURE_2D, texture);
                     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, forestBackground);
                 }
             } else if (!isStaticTextureSet) {
-                // Static image - only set once
                 gl.bindTexture(gl.TEXTURE_2D, texture);
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, forestBackground);
                 isStaticTextureSet = true;
             }
         }
 
+        // Activate texture units
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, rainMapTexture);
+
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, lightMapTexture);
+
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, puddleMapTexture);
+
         // Update uniforms
-        const textureUniform = gl.getUniformLocation(program, "uTexture");
         const timeUniform = gl.getUniformLocation(program, "uTime");
         const intensityUniform = gl.getUniformLocation(program, "uIntensity");
         const scaleUniform = gl.getUniformLocation(program, "uScale");
@@ -370,6 +640,9 @@ function animate() {
         if (scaleUniform) gl.uniform1f(scaleUniform, Number(settings.store.rainScale));
         if (angleUniform) gl.uniform1f(angleUniform, Number(settings.store.rainAngle));
         if (speedUniform) gl.uniform1f(speedUniform, Number(settings.store.rainSpeed));
+
+        // Update light uniforms using the lighting system
+        lightingSystem.updateUniforms(gl, program);
 
         // Render
         gl.viewport(0, 0, rainCanvas.width, rainCanvas.height);

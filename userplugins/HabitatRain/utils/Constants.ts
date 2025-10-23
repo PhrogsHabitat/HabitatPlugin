@@ -20,12 +20,17 @@ export const ASSETS = {
     THUNDER5: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/sounds/THUNDER5.mp3",
 
     // Video/Backgrounds
-    THEME_BACKGROUND: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/PHROGShit.mp4",
+    THEME_BACKGROUND: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/PHROGOtherCityShit.png",
 
     // Mist Layers
     MIST_FRONT: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/MISTFront.png",
     MIST_MID: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/MISTMid.png",
     MIST_BACK: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/MISTBack.png",
+
+    // Mapping System
+    RAIN_MAP: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/RainMap.png",
+    LIGHT_MAP: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/LightMap.png",
+    PUDDLE_MAP: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/PuddleMap.png",
 
     // Icon for Quick Actions
     QA_BG: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/assets/Phrog/graphics/QAIcon.png",
@@ -34,3 +39,4 @@ export const ASSETS = {
     // Styles
     THEME_CSS: "https://phrogshabitat.github.io/HabitatPlugin/autoUpdate/styles/HabitatRain.css"
 };
+// [file content end]
