@@ -24,7 +24,6 @@ const habitatRainCss = `
 
 /* I've commented most of these values so you can change them yourself. If you're having trouble, or you want to do more than what these values allow for, a volunteer might be able to help you in my server. */
 
-
 /*
 	<- MESSAGES (In currently selected channel) ->
 	.scrollerBase_d125d2
@@ -40,53 +39,41 @@ const habitatRainCss = `
 
 	<- SERVERLIST ->
 	.itemsContainer_ef3116
-
  */
 
 .theme-dark {
-  /* Backdrop image (unchanged, but you can replace it if desired). */
-  --dplus-backdrop: url(Nun);
+    --dplus-backdrop: url(Nun);
+  --dplus-accent-color-hue: 30;
+  --dplus-accent-color-saturation: 40%;
+  --dplus-accent-color-lightness: 60%;
 
-  /* Accent color: True green hue for highlights and accents. */
-  --dplus-accent-color-hue: 120;
-  --dplus-accent-color-saturation: 70%;
-  --dplus-accent-color-lightness: 45%;
+  --dplus-foreground-color-hue-base: 35;
+  --dplus-foreground-color-hue-links: 32;
+  --dplus-foreground-color-saturation-amount: 0.5;
+  --dplus-foreground-color-lightness-amount: 0.9;
 
-  /* Foreground color: Adjusted to complement green tones. */
-  --dplus-foreground-color-hue-base: 120;
-  --dplus-foreground-color-hue-links: 140;
-  --dplus-foreground-color-saturation-amount: 0.8;
-  --dplus-foreground-color-lightness-amount: 1.0;
-
-  /* Background color: A darker green to avoid harsh contrast. */
-  --dplus-background-color-hue: 120;
-  --dplus-background-color-saturation-amount: 0.5;
-  --dplus-background-color-lightness-amount: 0.65;
-  --dplus-background-color-alpha: 0.35; /* bro I spent forever trying to figure out why things has a dark tint :skull: */
-
+  --dplus-background-color-hue: 20;
+  --dplus-background-color-saturation-amount: 0.2;
+  --dplus-background-color-lightness-amount: 0.25;
+  --dplus-background-color-alpha: 0.35;
 }
 
 .theme-light {
-  /* Backdrop image (unchanged). */
-  --dplus-backdrop: url(Nun);
+    --dplus-backdrop: url(Nun);
+  --dplus-accent-color-hue: 35;
+  --dplus-accent-color-saturation: 50%;
+  --dplus-accent-color-lightness: 70%;
 
-  /* Accent color: True green for light theme. */
-  --dplus-accent-color-hue: 120;
-  --dplus-accent-color-saturation: 70%;
-  --dplus-accent-color-lightness: 50%;
+  --dplus-foreground-color-hue-base: 38;
+  --dplus-foreground-color-hue-links: 32;
+  --dplus-foreground-color-saturation-amount: 0.35;
+  --dplus-foreground-color-lightness-amount: 0.25;
 
-  /* Foreground color: Softer green tones for readability. */
-  --dplus-foreground-color-hue-base: 120;
-  --dplus-foreground-color-hue-links: 140;
-  --dplus-foreground-color-saturation-amount: 0.5;
-  --dplus-foreground-color-lightness-amount: 0.22;
-
-  /* Background color: A lighter green for light theme. */
-  --dplus-background-color-hue: 120;
-  --dplus-background-color-saturation-amount: 0.5;
-  --dplus-background-color-lightness-amount: 0.22;
-  /* --dplus-background-color-alpha: 0.5; */
+  --dplus-background-color-hue: 38;
+  --dplus-background-color-saturation-amount: 0.25;
+  --dplus-background-color-lightness-amount: 0.92;
 }
+
 
 :root {
   /* Fonts (unchanged). */
@@ -111,19 +98,30 @@ const habitatRainCss = `
   --dplus-icon-server-sidebar: 48px;
   --dplus-icon-server-list: 32px;
 
-  /* Home icon paths need hosting (unchanged). */
+  /* Home icon paths (unchanged). */
   --dplus-icon-home-dark: url(C:/Users/Sean/Desktop/Youtube/Assets/Images/FNF/PhrogInside.png);
   --dplus-icon-home-light: url(C:/Users/Sean/Desktop/Youtube/Assets/Images/FNF/PhrogInside.png);
 
-  /* Added variables for chat input and UI consistency */
+  /* Scrollbar width */
   --dplus-scrollbar-width: 16px;
-  --dplus-bgc-chatmsg: rgba(16, 36, 18, 0.65); /* Chat message background */
-  --dplus-bgc-ui-card: rgba(20, 30, 20, 0.55);  /* UI card background */
-  --dplus-bgc-chatmsg-hover: rgba(16, 36, 18, 0.7); /* Message hover/selected background */
-  --dplus-bgc-ui-base: rgba(19, 32, 19, 0.6);       /* Base UI background for themed containers */
+
+  /* 🟤 Vintage Brown Theme Colors */
+  --dplus-bgc-chatmsg: rgba(64, 48, 36, 0.65);        /* Warm dark brown parchment base */
+  --dplus-bgc-ui-card: rgba(80, 62, 48, 0.55);        /* Slightly lighter UI panels */
+  --dplus-bgc-chatmsg-hover: rgba(96, 76, 58, 0.7);   /* Subtle warm highlight when hovering */
+  --dplus-bgc-ui-base: rgba(54, 42, 32, 0.6);         /* Global background — deep, cozy brown */
+
+  /* Accent and text hints (for consistency across UI) */
+  --dplus-color-accent: #C19A6B;                      /* Caramel highlight tone */
+  --dplus-color-accent-hover: #D2A679;                /* Slightly lighter for hover effects */
+  --dplus-color-text: #EDE3D2;                        /* Warm parchment text */
+  --dplus-color-text-secondary: #BFAF9C;              /* Muted beige for secondary text */
+
+  /* Animation durations */
   --dplus-anim-long: 0.3s;
   --dplus-anim-short: 0.15s;
 }
+
 
 /* Ensure message text does not overlap avatar in cozy mode */
 .cozy_c19a55 .message__5126c {
@@ -404,21 +402,17 @@ border-radius: 0 0 var(--dplus-radius-ui) var(--dplus-radius-ui)!important;
  /*- DM Sidebar -*/
 .scrollerBase__99f8c, .privateChannels__35e86, .sidebarList_c48ade,.sidebarListRounded_c48ade {
   background-color: rgba(0, 0, 0, 0.18) !important;
-  backdrop-filter: blur(10px) opacity(0.5) saturate(25);
-  -webkit-backdrop-filter: blur(10px) opacity(0.2) saturate(25);
 }
 
 [class*="panels"], [class*="card"] {
   background-color: rgba(0, 0, 0, 0.45) !important;
-  backdrop-filter: blur(7px) opacity(0.5) saturate(25);
-  -webkit-backdrop-filter: blur(7px) opacity(0.2) saturate(25);
-  border: rgb(3, 94, 7) 1px solid;
 }
 
 .visual-refresh .scroller__99e7c {margin-bottom: 0;}
 .privateChannels__35e86 .channel__972a0 {
 	margin-left: var(--dplus-spacing-ui);
 	margin-right: var(--dplus-spacing-ui);
+
 }
 .closeButton__972a0 {
 	display: block;
@@ -478,6 +472,7 @@ margin-right: 0;
 	padding: 0;
 	flex-direction: column-reverse;
 }
+
 .visual-refresh-chat-input .channelBottomBarArea_f75fb0 {margin: 0;}
 .visual-refresh .channelTextArea_f75fb0 {background-color: var(--dplus-bgc-chatmsg);}
 .sansAttachButton__74017 {
@@ -570,6 +565,161 @@ margin-right: 0;
 }
 .cozy_c19a55 .repliedMessage_c19a55 {max-width: 100%;}
 
+/* The weird background thingy for the DM sideBar that was added in one of the Vencord updates :moyai: */
+.scroller__99e7c.thin_d125d2.scrollerBase_d125d2.fade_d125d2
+{
+	background-color: rgba(0, 0, 0, 0.0) !important;
+}
+
+.scroller__629e4 .thin_d125d2 .scrollerBase_d125d2 .fade_d125d2
+{
+	background-color: rgba(0, 0, 0, 0.692) !important;
+}
+
+
+/* Habitat Rain Quick Actions CSS */
+
+.habitat-quick-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+}
+
+.habitat-main-bubble {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--background-primary);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    cursor: move;
+    z-index: 100;
+    transition: transform 0.3s ease, background 0.2s ease;
+}
+
+.habitat-main-bubble:hover {
+    transform: scale(1.1);
+    background: var(--background-secondary);
+}
+
+.habitat-main-bubble.expanded {
+    transform: scale(1.2);
+}
+
+.habitat-main-bubble.dragging {
+    transform: scale(1.2);
+    opacity: 0.8;
+    cursor: grabbing;
+}
+
+.habitat-actions-container {
+    position: absolute;
+    pointer-events: none;
+}
+
+.habitat-action-bubble {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--background-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    cursor: pointer;
+    transform: translate(0, 0);
+    pointer-events: auto;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    transition:
+        transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        opacity 0.3s ease,
+        background 0.2s ease;
+}
+
+.habitat-action-control {
+    display: none;
+    position: absolute;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--background-secondary);
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 160px;
+    z-index: 5;
+}
+
+.habitat-action-label {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--header-primary);
+}
+
+.habitat-action-control input[type="range"] {
+    width: 100%;
+}
+
+.habitat-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.habitat-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.habitat-toggle-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--background-modifier-accent);
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.habitat-toggle-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.habitat-toggle-switch input:checked + .slider {
+    background-color: var(--brand-experiment);
+}
+
+.habitat-toggle-switch input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+@keyframes habitat-fade-in {
+    from { opacity: 0; transform: translateY(-10px) translateY(-50%); }
+    to { opacity: 1; transform: translateY(-50%); }
+}
+
+@keyframes habitat-fade-out {
+    from { opacity: 1; transform: translateY(-50%); }
+    to { opacity: 0; transform: translateY(-10px) translateY(-50%); }
+}
 `;
 
 export default habitatRainCss;

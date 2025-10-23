@@ -10,3 +10,4 @@ import { CspPolicies } from "@main/csp";
 CspPolicies["https://phrogshabitat.github.io"] = ["media-src"];
 CspPolicies["https://plusinsta.github.io"] = ["media-src"];
 CspPolicies["https://cdn.pixabay.com"] = ["media-src"];
+CspPolicies["https://tympanus.net"] = ["media-src"];

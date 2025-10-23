@@ -1,43 +1,71 @@
 /*
  * Vencord, a Discord client mod
- * Copyright (c) 2025 Vendicated and contributors
+ * Copyright (c) 2024 Vendicated and contributors
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 import definePlugin from "@utils/types";
 
-import * as CRTFilter from "./components/CRTFilter";
-import * as GearAnimation from "./components/GearAnimation";
+import * as DynamicEnvironment from "./components/DynamicEnvironment";
+import { lightingSystem } from "./components/LightingSystem";
+import { hideLoadingOverlay, showLoadingOverlay } from "./components/LoadingOverlay";
+import * as MechanicalEffect from "./components/MechanicalEffect";
 import { QuickActions } from "./components/QuickActions";
-import * as SteamPipes from "./components/SteamPipesBackground";
-import * as TerminalDisplay from "./components/TerminalDisplay";
-import { injectSpectralStyles } from "./utils/domUtils";
+import * as SteampunkBackground from "./components/SteampunkBackground";
+import { injectSteampunkStyles } from "./utils/domUtils";
 import { settings } from "./utils/settingsStore";
 
+let isPluginActive = false;
+let quickActions: QuickActions | null = null;
+
 export default definePlugin({
-    name: "The Spectral Place",
-    description: "SteamPunk + Retro themed environment",
+    name: "Steampunk Workshop",
+    description: "A steampunk plugin that transforms Discord into a mechanical workshop.",
     authors: [{ name: "PhrogsHabitat", id: 788145360429252610n }],
-    version: "1.0.0",
+    version: "4.3.5",
     settings,
     async start() {
-        // Inject custom styles
-        await injectSpectralStyles();
+        try {
+            isPluginActive = true;
+            showLoadingOverlay();
 
-        // Initialize components
-        if (settings.store.showSteamBackground) await SteamPipes.setup();
-        if (settings.store.enableGears) GearAnimation.start();
-        if (settings.store.enableCRTFilter) CRTFilter.apply();
-        if (settings.store.enableTerminal) TerminalDisplay.start();
+            // 1. Inject CSS styles first
+            await injectSteampunkStyles();
 
-        // Add control panel
-        new QuickActions();
+            // 2. Initialize components
+            if (settings.store.showSteampunkBackground) await SteampunkBackground.setup();
+            MechanicalEffect.start(settings.store.preset || "Moderate");
+            if (settings.store.enableSteam) import("./components/SteamEffect.js").then(m => m.setup());
+            if (settings.store.dynamicEnvironment) DynamicEnvironment.start();
+
+            // 3. Add quick actions UI
+            quickActions = new QuickActions();
+
+            // 4. Hide loading overlay with delay
+            setTimeout(hideLoadingOverlay, 500);
+        } catch (e) {
+            console.error("Error during Steampunk plugin start:", e);
+        }
     },
     stop() {
-        // Cleanup all components
-        GearAnimation.stop();
-        SteamPipes.remove();
-        CRTFilter.remove();
-        TerminalDisplay.stop();
-    }
+        try {
+            isPluginActive = false;
+            hideLoadingOverlay();
+            MechanicalEffect.stop();
+            DynamicEnvironment.stop();
+            SteampunkBackground.remove();
+            import("./components/SteamEffect.js").then(m => m.remove());
+
+            // Clean up lighting system
+            lightingSystem.clearLights();
+
+            // Clean up quick actions
+            if (quickActions) {
+                quickActions.remove();
+                quickActions = null;
+            }
+        } catch (e) {
+            console.error("Error during Steampunk plugin stop:", e);
+        }
+    },
 });
